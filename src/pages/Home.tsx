@@ -1,6 +1,5 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/Home.css"; // Este archivo será para los estilos (opcional)
 import Footer from "../components/Footer";
 
 const Home = () => {

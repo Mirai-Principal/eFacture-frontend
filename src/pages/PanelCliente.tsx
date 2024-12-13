@@ -18,9 +18,13 @@ const PanelUsuario = () => {
 
       try {
         const response = await fetch("http://localhost:8000/validate_token", {
+          method: "POST",
           headers: {
-            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
+          body: JSON.stringify({
+            token,
+          }),
         });
 
         if (!response.ok) {

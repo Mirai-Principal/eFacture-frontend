@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { FocusEvent, MouseEvent, useState } from "react";
 import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+
+import ValidarCI from "../scripts/ValidarCI";
 
 const Registrar = () => {
   // Estado para los campos del formulario
@@ -25,37 +27,48 @@ const Registrar = () => {
     });
   };
 
+  const [dniValido, setDniValido] = useState(false);
+  const handleBlur = (e: FocusEvent) => {
+    const dni = e.target.value;
+    setDniValido(ValidarCI(dni));
+  };
+
   // Función para manejar el envío del formulario
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      // Enviar los datos al backend usando fetch
-      const response = await fetch("http://localhost:8000/registrar", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+    if (!dniValido) {
+      Swal.fire("Cédula no válida");
+    } else
+      try {
+        // Enviar los datos al backend usando fetch
+        const response = await fetch("http://localhost:8000/registrar", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
 
-      // Verificar si la respuesta es exitosa
-      if (!response.ok) {
-        const data = await response.json();
-        setError(data.detail || "Error al registrar el usuario");
-        Swal.fire(`${data.detail}`);
-      } else {
-        const data = await response.json();
-        Swal.fire(`Usuario registrado con éxito`);
-        // console.log("Usuario registrado con éxito", data);
-        // Aquí puedes redirigir a una página de éxito o login
-        navigate("/login");
+        // Verificar si la respuesta es exitosa
+        if (!response.ok) {
+          const data = await response.json();
+          setError(data.detail || "Error al registrar el usuario");
+          console.log(data);
+
+          Swal.fire(`${data.detail}`);
+        } else {
+          const data = await response.json();
+          Swal.fire(`Usuario registrado con éxito`);
+          // console.log("Usuario registrado con éxito", data);
+          // Aquí puedes redirigir a una página de éxito o login
+          navigate("/login");
+        }
+      } catch (err) {
+        console.error("Error:", err);
+        Swal.fire(`${err}`);
+
+        setError("Hubo un error al procesar la solicitud");
       }
-    } catch (err) {
-      console.error("Error:", err);
-      Swal.fire(`${err}`);
-
-      setError("Hubo un error al procesar la solicitud");
-    }
   };
 
   const navigate = useNavigate();
@@ -81,12 +94,22 @@ const Registrar = () => {
                 name="identificacion"
                 value={formData.identificacion}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 required
                 placeholder="Cedula / RUC"
                 pattern="[0-9]{10,13}"
                 title="Solo números del 0 al 9. Ej: 0202432143001"
-                className="form-control"
+                className={`form-control border-0 border-bottom   ${
+                  dniValido
+                    ? "border border-success"
+                    : "border border-danger text-danger"
+                }`}
               />
+              {dniValido ? (
+                ""
+              ) : (
+                <small className="text-danger">Cédula no valida</small>
+              )}
             </div>
 
             <div className="form-group">
