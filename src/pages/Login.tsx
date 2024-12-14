@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import Navbar from "../components/navbar";
 
 const Login = () => {
   // Estado para los campos del formulario
@@ -55,9 +56,7 @@ const Login = () => {
 
   return (
     <div className="container text-center">
-      <div className="row bg-secondary text-white">
-        <h1>Bienvenidos a eFacture</h1>
-      </div>
+      <Navbar />
       <div className="row my-4">
         <div className="col-md-12 ">
           <h2>Registro de Usuario</h2>

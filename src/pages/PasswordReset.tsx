@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import Swal from "sweetalert2";
 import Footer from "../components/Footer";
+import Navbar from "../components/navbar";
 
 function PasswordReset() {
   const navigate = useNavigate();
@@ -63,51 +64,50 @@ function PasswordReset() {
   };
 
   return (
-    <div className="container text-center">
-      <div className="row bg-secondary text-white">
-        <h1>Bienvenidos a eFacture</h1>
-      </div>
-      <div className="row my-4">
-        <div className="col-md-12 ">
-          <h2>Recuperar contraseña</h2>
-          <form onSubmit={handleSubmit} className="w-50 mx-auto">
-            <div className="form-group">
-              <label htmlFor="correo">Correo Electrónico</label>
-              <br />
-              <input
-                type="email"
-                id="correo"
-                name="correo"
-                value={formData.correo}
-                onChange={handleChange}
-                required
-                className="form-control border-0 border-bottom py-1 my-2 border border-dark"
-                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,10}$"
-                title="Ingrese un correo válido. Ej: micorreo@gmail.com"
-              />
-            </div>
-            <button
-              type="submit"
-              className="register-btn btn btn-info form-control"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <b className="my-auto">Espere... </b>
-                  <div className="spinner-border " role="status">
-                    <span className="visually-hidden">Espere...</span>
-                  </div>
-                </>
-              ) : (
-                "Enviar"
-              )}
-            </button>
-          </form>
+    <>
+      <Navbar />
+      <div className="container text-center">
+        <div className="row my-4">
+          <div className="col-md-12 ">
+            <h2>Recuperar contraseña</h2>
+            <form onSubmit={handleSubmit} className="w-50 mx-auto">
+              <div className="form-group">
+                <label htmlFor="correo">Correo Electrónico</label>
+                <br />
+                <input
+                  type="email"
+                  id="correo"
+                  name="correo"
+                  value={formData.correo}
+                  onChange={handleChange}
+                  required
+                  className="form-control border-0 border-bottom py-1 my-2 border border-dark"
+                  pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,10}$"
+                  title="Ingrese un correo válido. Ej: micorreo@gmail.com"
+                />
+              </div>
+              <button
+                type="submit"
+                className="register-btn btn btn-info form-control"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <b className="my-auto">Espere... </b>
+                    <div className="spinner-border " role="status">
+                      <span className="visually-hidden">Espere...</span>
+                    </div>
+                  </>
+                ) : (
+                  "Enviar"
+                )}
+              </button>
+            </form>
+          </div>
         </div>
       </div>
-
       <Footer />
-    </div>
+    </>
   );
 }
 

@@ -1,49 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import ValidateSession from "../components/ValidateSession";
+import Cargador from "../components/Cargador";
 
 const PanelUsuario = () => {
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchPanelData = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setError("No estás autenticado.");
-        navigate("/login"); // Redirige al login si no hay token
-        return;
-      }
+  const { error, loading } = ValidateSession();
 
-      try {
-        const response = await fetch("http://localhost:8000/validate_token", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            token,
-          }),
-        });
+  if (loading) {
+    return <Cargador />; // Mostrar un indicador de carga mientras valida
+  }
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          // Swal.fire(`Error al obtener datos\n ${errorData.detail}`);
-          Swal.fire(`Sesión expirada`);
-          navigate("/login");
-        } else {
-          const data = await response.json();
-          console.log("Datos recibidos:", data);
-        }
-      } catch (err) {
-        setError("Error de red o servidor.");
-        navigate("/login");
-      }
-    };
-
-    fetchPanelData();
-  }, [navigate]);
+  if (error) {
+    return console.log(error);
+  }
 
   const handleLogout = () => {
     // Eliminar el token
@@ -57,13 +29,17 @@ const PanelUsuario = () => {
     <div className="panel-usuario">
       <div>
         <h1>Panel del Usuario</h1>
-        <p>{message}</p>
-        <button
-          onClick={handleLogout}
-          style={{ padding: "10px", backgroundColor: "red", color: "white" }}
-        >
-          Cerrar Sesión
-        </button>
+        <button onClick={handleLogout}>Cerrar Sesión</button>
+
+        <button>Extraer comprobantes</button>
+        <button>Realizar deducción</button>
+        <button>Ver historial de deducciones</button>
+        <button>Predicción de gastos</button>
+
+        <button>Gestionar Membresías</button>
+        <button>Gestionar categorias</button>
+        <button>Listar clientes registrados</button>
+        <button>Sueldo básico</button>
       </div>
     </div>
   );

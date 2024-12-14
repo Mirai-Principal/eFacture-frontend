@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
+import Navbar from "../components/navbar";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -15,9 +16,7 @@ const Home = () => {
 
   return (
     <div className="container text-center">
-      <div className="row bg-secondary text-white">
-        <h1>Bienvenidos a eFacture</h1>
-      </div>
+      <Navbar />
       <div className="row my-4">
         <div className="col-md-6">
           <img src="/logo.png" alt="" />
