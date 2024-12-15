@@ -1,12 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import ValidateSession from "../../components/ValidateSession";
+import Cargador from "../../components/Cargador";
+import Footer from "../../components/Footer";
+import Navbar from "../../components/navbar";
 
-import ValidateSession from "../components/ValidateSession";
-import Cargador from "../components/Cargador";
-import Footer from "../components/Footer";
-import Navbar from "../components/navbar";
-
-const PanelUsuario = () => {
+const PanelAdmin = () => {
   const navigate = useNavigate();
 
   const { error, loading } = ValidateSession();
@@ -22,21 +22,20 @@ const PanelUsuario = () => {
   const handleNavigation = (route: string) => {
     navigate(route);
   };
-
   return (
     <>
-      <Navbar es_cliente={true} />
+      <Navbar es_admin={true} />
       <div className="container contenido">
         <div className=" mt-5 ">
-          <h1 className="text-center mb-4">Panel de Usuario</h1>
+          <h1 className="text-center mb-4">Panel de Administrador</h1>
           <div className="row d-flex justify-content-center">
             {/* Botón Extraer comprobantes */}
             <div className="col-12 col-md-6 col-lg-3 mb-3">
               <button
                 className="btn btn-primary w-100 p-3"
-                onClick={() => handleNavigation("/extraer-comprobantes")}
+                onClick={() => handleNavigation("/lista_membresias")}
               >
-                Extraer comprobantes
+                Gestionar Membresías
               </button>
             </div>
 
@@ -44,9 +43,9 @@ const PanelUsuario = () => {
             <div className="col-12 col-md-6 col-lg-3 mb-3">
               <button
                 className="btn btn-success w-100 p-3"
-                onClick={() => handleNavigation("/realizar-deduccion")}
+                onClick={() => handleNavigation("/categorias")}
               >
-                Realizar deducción
+                Gestionar categorías
               </button>
             </div>
           </div>
@@ -56,9 +55,9 @@ const PanelUsuario = () => {
             <div className="col-12 col-md-6 col-lg-3 mb-3">
               <button
                 className="btn btn-warning w-100 p-3"
-                onClick={() => handleNavigation("/ver-historial-deducciones")}
+                onClick={() => handleNavigation("/lista_clientes")}
               >
-                Ver historial de deducciones
+                Listar clientes registrados
               </button>
             </div>
 
@@ -66,9 +65,9 @@ const PanelUsuario = () => {
             <div className="col-12 col-md-6 col-lg-3 mb-3">
               <button
                 className="btn btn-info w-100 p-3"
-                onClick={() => handleNavigation("/prediccion-gastos")}
+                onClick={() => handleNavigation("/sueldo_basico")}
               >
-                Predicción de gastos
+                Sueldo básico
               </button>
             </div>
           </div>
@@ -79,4 +78,4 @@ const PanelUsuario = () => {
   );
 };
 
-export default PanelUsuario;
+export default PanelAdmin;

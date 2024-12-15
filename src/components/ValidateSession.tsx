@@ -37,7 +37,7 @@ const ValidateSession = () => {
         }
 
         const data = await response.json();
-        console.log("Validación exitosa:", data);
+        console.log("Validación exitosa:");
       } catch (err) {
         console.error("Error de red o servidor:", err);
         setError("Error de red o servidor.");
