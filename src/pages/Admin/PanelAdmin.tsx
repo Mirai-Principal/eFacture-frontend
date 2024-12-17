@@ -9,7 +9,7 @@ import Navbar from "../../components/navbar";
 const PanelAdmin = () => {
   const navigate = useNavigate();
 
-  const { error, loading } = ValidateSession();
+  const { error, loading } = ValidateSession({ esPanel: true });
 
   if (loading) {
     return <Cargador />; // Mostrar un indicador de carga mientras valida

@@ -5,11 +5,12 @@ import ValidateSession from "../components/ValidateSession";
 import Cargador from "../components/Cargador";
 import Footer from "../components/Footer";
 import Navbar from "../components/navbar";
+import Config from "../components/Config";
 
 const PanelUsuario = () => {
   const navigate = useNavigate();
 
-  const { error, loading } = ValidateSession();
+  const { error, loading } = ValidateSession({ esPanel: true });
 
   if (loading) {
     return <Cargador />; // Mostrar un indicador de carga mientras valida

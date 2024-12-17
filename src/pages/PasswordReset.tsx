@@ -66,7 +66,7 @@ function PasswordReset() {
   return (
     <>
       <Navbar />
-      <div className="container text-center">
+      <div className="container contenido text-center">
         <div className="row my-4">
           <div className="col-md-12 ">
             <h2>Recuperar contraseña</h2>

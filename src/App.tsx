@@ -6,7 +6,10 @@ import Login from "./pages/Login";
 import PasswordReset from "./pages/PasswordReset";
 import CambiarPassword from "./pages/CambiarPassword";
 import PanelCliente from "./pages/PanelCliente";
-import PanelAdmin from "./pages/Admin/Paneladmin";
+import PanelAdmin from "./pages/Admin/PanelAdmin";
+import ListaMembresias from "./pages/Admin/ListaMembresias";
+import NuevaMembresia from "./pages/Admin/NuevaMembresia";
+import MembresiaModificar from "./pages/Admin/MembresiaModificar";
 
 const App = () => {
   return (
@@ -17,8 +20,16 @@ const App = () => {
         <Route path="/registrar" element={<Registrar />} />
         <Route path="/password_reset" element={<PasswordReset />} />
         <Route path="/cambiar_password" element={<CambiarPassword />} />
+
         <Route path="/panel_cliente" element={<PanelCliente />} />
+
         <Route path="/panel_admin" element={<PanelAdmin />} />
+        <Route path="/lista_membresias" element={<ListaMembresias />} />
+        <Route path="/nueva_membresia" element={<NuevaMembresia />} />
+        <Route
+          path="/actualizar_membresia/:cod_membresia"
+          element={<MembresiaModificar />}
+        />
       </Routes>
     </Router>
   );

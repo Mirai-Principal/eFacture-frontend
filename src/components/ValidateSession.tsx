@@ -3,7 +3,11 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import Config from "./Config";
 
-const ValidateSession = () => {
+interface ValidateProps {
+  esPanel?: boolean;
+}
+const ValidateSession = (props: ValidateProps) => {
+  const { esPanel } = props;
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true); //estado de la carga
@@ -37,7 +41,11 @@ const ValidateSession = () => {
         }
 
         const data = await response.json();
-        console.log("Validación exitosa:");
+        // console.log("Validación exitosa:", data);
+
+        if (esPanel)
+          if (data.tipo_usuario == "admin") navigate("/panel_admin");
+          else if (data.tipo_usuario == "cliente") navigate("/panel_cliente");
       } catch (err) {
         console.error("Error de red o servidor:", err);
         setError("Error de red o servidor.");
