@@ -1,16 +1,17 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 
 import ValidateSession from "../components/ValidateSession";
 import Cargador from "../components/Cargador";
 import Footer from "../components/Footer";
-import Navbar from "../components/navbar";
-import Config from "../components/Config";
+import Navbar from "../components/Navbar";
 
-const PanelUsuario = () => {
+const PanelCliente = () => {
   const navigate = useNavigate();
 
-  const { error, loading } = ValidateSession({ esPanel: true });
+  const { error, loading, tipoUsuario } = ValidateSession({
+    route: "validate_token",
+    method: "POST",
+  });
 
   if (loading) {
     return <Cargador />; // Mostrar un indicador de carga mientras valida
@@ -19,6 +20,8 @@ const PanelUsuario = () => {
   if (error) {
     console.log(error);
   }
+
+  if (tipoUsuario && tipoUsuario != "cliente") navigate("/");
 
   const handleNavigation = (route: string) => {
     navigate(route);
@@ -80,4 +83,4 @@ const PanelUsuario = () => {
   );
 };
 
-export default PanelUsuario;
+export default PanelCliente;

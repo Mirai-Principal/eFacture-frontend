@@ -2,9 +2,14 @@ import React, { useState } from "react";
 import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import Navbar from "../components/navbar";
+import Navbar from "../components/Navbar";
+import Config from "../components/Config";
+import Cargador from "../components/Cargador";
+import ValidateSession from "../components/ValidateSession";
 
 const Login = () => {
+  const navigate = useNavigate();
+
   // Estado para los campos del formulario
   const [formData, setFormData] = useState({
     correo: "",
@@ -20,24 +25,49 @@ const Login = () => {
     });
   };
 
+  const token = localStorage.getItem("token");
+  //? si hay sesion redirige a donde corresponda
+  if (token) {
+    const { error, loading, tipoUsuario } = ValidateSession({
+      route: "validate_token",
+      method: "POST",
+    });
+
+    if (loading) {
+      return <Cargador />; // Mostrar un indicador de carga mientras valida
+    }
+
+    if (error) {
+      console.log(error);
+    }
+
+    if (tipoUsuario == "cliente") navigate("/panel_cliente");
+    else if (tipoUsuario == "admin") navigate("/panel_admin");
+    else navigate("/");
+  }
+
   // Función para manejar el envío del formulario
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     // console.log(formData);
 
     try {
-      const response = await fetch("http://localhost:8000/login", {
+      const response = await fetch(`${Config.apiBaseUrl}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
+        // credentials: "include", // Permite que las cookies y otros credenciales sean enviadas/recibidas
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem("token", data.access_token); // Guardar token para futuras solicitudes
+        const token = response.headers.get("Authorization");
+        const sub = response.headers.get("sub");
+
+        localStorage.setItem("token", token); // Guardar token para futuras solicitudes
         // console.log(data);
 
         // Swal.fire(`Autenticación exitosa`);
@@ -47,11 +77,12 @@ const Login = () => {
         Swal.fire(`${data.detail}`);
       }
     } catch (err) {
+      console.log(err);
+
       Swal.fire(`Error de red`);
     }
   };
 
-  const navigate = useNavigate();
   const handleRegister = () => {
     navigate("/registrar");
   };

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import ValidateSession from "../../components/ValidateSession";
 import Cargador from "../../components/Cargador";
 import Footer from "../../components/Footer";
-import Navbar from "../../components/navbar";
+import Navbar from "../../components/Navbar";
 import Swal from "sweetalert2";
 import Config from "../../components/Config";
 
@@ -19,7 +19,7 @@ const NuevaMembresia = () => {
     estado: "disponible",
     fecha_lanzamiento: "",
     vigencia_meses: "",
-    fecha_finalizacion: "2024-12-19",
+    fecha_finalizacion: "2025-12-19",
   });
 
   // Función para manejar el cambio en los campos del formulario
@@ -31,21 +31,25 @@ const NuevaMembresia = () => {
     });
   };
 
-  const { error, loading } = ValidateSession({});
+  //valida la sesion
+  const { error, loading, tipoUsuario } = ValidateSession({
+    route: "validate_token",
+    method: "POST",
+  });
   if (loading) {
     return <Cargador />; // Mostrar un indicador de carga mientras valida
   }
-
   if (error) {
     console.log(error);
   }
+  if (tipoUsuario && tipoUsuario != "admin") navigate("/");
 
   // Obtener la fecha actual en formato 'YYYY-MM-DD'
   const today = new Date().toISOString().split("T")[0];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Datos del formulario:", formData);
+    const token = localStorage.getItem("token");
 
     try {
       // Enviar los datos al backend usando fetch
@@ -53,6 +57,7 @@ const NuevaMembresia = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: token,
         },
         body: JSON.stringify(formData),
       });
@@ -60,23 +65,17 @@ const NuevaMembresia = () => {
       // Verificar si la respuesta es exitosa
       if (!response.ok) {
         const data = await response.json();
-        // setError(data.detail || "Error al registrar el usuario");
-        console.log(data.detail);
-
-        Swal.fire(`${data.detail}`);
+        // console.log(data.detail);
+        Swal.fire(data.detail);
       } else {
         const data = await response.json();
-        console.log(data);
-
-        Swal.fire(`Memebresia registrada con éxito`);
-
+        // console.log(data);
+        Swal.fire(data.detail);
         navigate("/lista_membresias");
       }
     } catch (err) {
       console.error("Error:", err);
-      Swal.fire(`${err}`);
-
-      //   setError("Hubo un error al procesar la solicitud");
+      Swal.fire("Hubo un error al procesar la solicitud");
     }
   };
 

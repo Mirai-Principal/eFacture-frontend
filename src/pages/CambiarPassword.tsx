@@ -4,11 +4,13 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { Dialog } from "../components/Alerts";
 import Footer from "../components/Footer";
-import Navbar from "../components/navbar";
+import Navbar from "../components/Navbar";
 import Config from "../components/Config";
 
 function CambiarPassword() {
   const navigate = useNavigate();
+
+  const sesion = localStorage.getItem("token");
 
   // Obtener los parámetros de la URL
   const [searchParams] = useSearchParams();
@@ -16,6 +18,10 @@ function CambiarPassword() {
   const token = searchParams.get("k");
 
   useEffect(() => {
+    if (sesion) {
+      navigate("/"); // Redirige si no hay token
+    }
+
     if (!token) {
       navigate("/login"); // Redirige al login si no hay token
       return;
@@ -26,23 +32,23 @@ function CambiarPassword() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            token,
-          }),
         });
 
         if (!response.ok) {
           const errorData = await response.json();
-          // Swal.fire(`Error al obtener datos\n ${errorData.detail}`);
           Swal.fire(`Link expirado`);
           navigate("/");
-        } else {
-          const data = await response.json();
-          // console.log("Datos recibidos:", data);
+          throw new Error(errorData.detail || "Something went wrong");
         }
-      } catch (err) {
-        setError("Error de red o servidor.");
+
+        const data = await response.json();
+        // console.log("Datos recibidos:", data);
+      } catch (error) {
+        Swal.fire(`Link expirado`);
+        console.log(error.message);
+
         navigate("/");
       }
     };
@@ -53,7 +59,6 @@ function CambiarPassword() {
   const [formData, setFormData] = useState({
     password: "",
     confirm_password: "",
-    token: token,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -69,17 +74,18 @@ function CambiarPassword() {
     });
   };
 
-  // Función para manejar el envío del formulario
+  //? Función para manejar el envío del formulario
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
       // Enviar los datos al backend usando fetch
-      const response = await fetch("http://localhost:8000/cambiar_password", {
+      const response = await fetch(`${Config.apiBaseUrl}/cambiar_password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
       });
@@ -91,7 +97,7 @@ function CambiarPassword() {
         Swal.fire(`${data.detail}`);
       } else {
         const data = await response.json();
-        Dialog("Se cambiado tu contraseña");
+        Dialog(data.detail || "Se cambiado tu contraseña");
         // console.log(data);
 
         navigate("/login");

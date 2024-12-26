@@ -3,7 +3,10 @@ import { useNavigate } from "react-router-dom";
 
 import Swal from "sweetalert2";
 import Footer from "../components/Footer";
-import Navbar from "../components/navbar";
+import Navbar from "../components/Navbar";
+import Config from "../components/Config";
+import ValidateSession from "../components/ValidateSession";
+import Cargador from "../components/Cargador";
 
 function PasswordReset() {
   const navigate = useNavigate();
@@ -24,6 +27,27 @@ function PasswordReset() {
     });
   };
 
+  const token = localStorage.getItem("token");
+  //? si hay sesion redirige a donde corresponda
+  if (token) {
+    const { error, loading, tipoUsuario } = ValidateSession({
+      route: "validate_token",
+      method: "POST",
+    });
+
+    if (loading) {
+      return <Cargador />; // Mostrar un indicador de carga mientras valida
+    }
+
+    if (error) {
+      console.log(error);
+    }
+
+    if (tipoUsuario == "cliente") navigate("/panel_cliente");
+    else if (tipoUsuario == "admin") navigate("/panel_admin");
+    else navigate("/");
+  }
+
   // Función para manejar el envío del formulario
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +55,7 @@ function PasswordReset() {
 
     try {
       // Enviar los datos al backend usando fetch
-      const response = await fetch("http://localhost:8000/password_reset", {
+      const response = await fetch(`${Config.apiBaseUrl}/password_reset`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -49,9 +73,9 @@ function PasswordReset() {
         Swal.fire(`${data.detail}`);
       } else {
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
 
-        Swal.fire(data);
+        Swal.fire(data.detail);
 
         navigate("/");
       }

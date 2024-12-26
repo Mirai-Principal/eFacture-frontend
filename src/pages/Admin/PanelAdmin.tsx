@@ -1,15 +1,16 @@
-import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
 import ValidateSession from "../../components/ValidateSession";
 import Cargador from "../../components/Cargador";
 import Footer from "../../components/Footer";
-import Navbar from "../../components/navbar";
+import Navbar from "../../components/Navbar";
 
 const PanelAdmin = () => {
   const navigate = useNavigate();
 
-  const { error, loading } = ValidateSession({ esPanel: true });
+  const { error, loading, tipoUsuario } = ValidateSession({
+    route: "validate_token",
+    method: "POST",
+  });
 
   if (loading) {
     return <Cargador />; // Mostrar un indicador de carga mientras valida
@@ -18,6 +19,8 @@ const PanelAdmin = () => {
   if (error) {
     console.log(error);
   }
+
+  if (tipoUsuario && tipoUsuario != "admin") navigate("/");
 
   const handleNavigation = (route: string) => {
     navigate(route);

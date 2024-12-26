@@ -4,16 +4,31 @@ import Swal from "sweetalert2";
 import Config from "./Config";
 
 interface ValidateProps {
-  esPanel?: boolean;
+  route: string;
+  body?: string;
+  method: string;
+  k?: string;
+  setEstado?: React.Dispatch<React.SetStateAction<any>>;
 }
+/**
+ * metodo para validar la session y para realizar peticiones
+ * @param route
+ * @param body para enviar datos
+ * @param method
+ * @param k token de sesion
+ * @param setEstado para devolver datos dentro de un estado
+ * @returns error, loading, res, tipoUsuario
+ */
 const ValidateSession = (props: ValidateProps) => {
-  const { esPanel } = props;
+  const { route, body, method, k, setEstado } = props;
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true); //estado de la carga
+  const [res, setRes] = useState(null);
+  const [tipoUsuario, setTipoUsuario] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = k || localStorage.getItem("token");
 
     if (!token) {
       setError("No estás autenticado.");
@@ -24,31 +39,56 @@ const ValidateSession = (props: ValidateProps) => {
 
     const validar = async () => {
       try {
-        const response = await fetch(`${Config.apiBaseUrl}/validate_token`, {
-          method: "POST",
+        const response = await fetch(`${Config.apiBaseUrl}/${route}`, {
+          method: method,
           headers: {
             "Content-Type": "application/json",
+            Authorization: token,
           },
-          body: JSON.stringify({ token }),
+          body: body,
+          // credentials: "include", // Permite que las cookies y otros credenciales sean enviadas/recibidas
         });
 
         if (!response.ok) {
           const errorData = await response.json();
-          console.warn("Error al validar el token:", errorData);
+          // console.warn("Error al validar el token:", errorData);
           Swal.fire("Sesión expirada. Por favor, inicia sesión nuevamente.");
+          localStorage.removeItem("token");
+          setRes(errorData);
           navigate("/");
           return;
         }
 
         const data = await response.json();
+
+        const tipo_usuario = response.headers.get("tipo_usuario");
+        setTipoUsuario(tipo_usuario);
+
+        setRes(data);
+
+        // asigna el resultado al estado de donde lo invoco
+        try {
+          setEstado(data);
+        } catch (err) {
+          console.log(err);
+        }
+
+        // Guardar token para futuras solicitudes
+        const new_token = response.headers.get("Authorization");
+        localStorage.removeItem("token");
+        localStorage.setItem("token", new_token);
+
         // console.log("Validación exitosa:", data);
 
-        if (esPanel)
-          if (data.tipo_usuario == "admin") navigate("/panel_admin");
-          else if (data.tipo_usuario == "cliente") navigate("/panel_cliente");
+        // if (esPanel)
+        //   if (tipo_usuario == "admin") navigate("/panel_admin");
+        //   else if (tipo_usuario == "cliente") navigate("/panel_cliente");
       } catch (err) {
         console.error("Error de red o servidor:", err);
         setError("Error de red o servidor.");
+        localStorage.removeItem("token");
+        Swal.fire("Sesión expirada. Por favor, inicia sesión nuevamente.");
+
         navigate("/");
       } finally {
         setLoading(false);
@@ -56,9 +96,9 @@ const ValidateSession = (props: ValidateProps) => {
     };
 
     validar();
-  }, [navigate]);
+  }, [navigate, route, method]);
 
-  return { error, loading };
+  return { error, loading, res, tipoUsuario };
 };
 
 export default ValidateSession;

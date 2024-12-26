@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ValidateSession from "../../components/ValidateSession";
 import Cargador from "../../components/Cargador";
 import Footer from "../../components/Footer";
-import Navbar from "../../components/navbar";
+import Navbar from "../../components/Navbar";
 import Swal from "sweetalert2";
 import Config from "../../components/Config";
 
@@ -19,7 +19,7 @@ const MembresiaModificar = () => {
     estado: "disponible",
     fecha_lanzamiento: "",
     vigencia_meses: "",
-    fecha_finalizacion: "2024-12-19",
+    fecha_finalizacion: "2025-12-19",
   });
 
   // Función para manejar el cambio en los campos del formulario
@@ -32,26 +32,12 @@ const MembresiaModificar = () => {
   };
   const { cod_membresia } = useParams<{ cod_membresia: string }>();
 
-  useEffect(() => {
-    // Llamada a la API para obtener las membresías
-    const fetchMembresias = async () => {
-      try {
-        const response = await fetch(
-          `${Config.apiBaseUrl}/visualizar_membresia/${cod_membresia}`
-        );
-        const data = await response.json();
-        // console.log(data);
+  const { error, res, loading, tipoUsuario } = ValidateSession({
+    route: `visualizar_membresia/${cod_membresia}`,
+    method: "GET",
+    setEstado: setFormData,
+  });
 
-        setFormData(data); // Guarda los datos en el estado
-      } catch (error) {
-        console.error("Error al obtener la membresía:", error);
-      }
-    };
-
-    fetchMembresias();
-  }, []); // Solo se ejecuta una vez al montar el componente
-
-  const { error, loading } = ValidateSession({});
   if (loading) {
     return <Cargador />; // Mostrar un indicador de carga mientras valida
   }
@@ -59,13 +45,16 @@ const MembresiaModificar = () => {
   if (error) {
     console.log(error);
   }
+  if (tipoUsuario != "admin") navigate("/");
 
   // Obtener la fecha actual en formato 'YYYY-MM-DD'
   const today = new Date().toISOString().split("T")[0];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Datos del formulario:", formData);
+    // console.log("Datos del formulario:", formData);
+
+    const token = localStorage.getItem("token");
 
     try {
       // Enviar los datos al backend usando fetch
@@ -75,24 +64,20 @@ const MembresiaModificar = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: token,
           },
           body: JSON.stringify(formData),
         }
       );
-
       // Verificar si la respuesta es exitosa
       if (!response.ok) {
         const data = await response.json();
-        // setError(data.detail || "Error al registrar el usuario");
-        console.log(data.detail);
-
+        // console.log(data.detail);
         Swal.fire(`${data.detail}`);
       } else {
         const data = await response.json();
-        console.log(data);
-
-        Swal.fire(`Memebresia actualizada`);
-
+        // console.log(data.detail);
+        Swal.fire(data.detail);
         navigate("/lista_membresias");
       }
     } catch (err) {

@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import Navbar from "../../components/navbar";
+import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import Cargador from "../../components/Cargador";
 import ValidateSession from "../../components/ValidateSession";
-import Config from "../../components/Config";
 
 // Define la estructura de los datos que esperas
 interface Membresia {
@@ -21,22 +20,13 @@ function ListaMembresias() {
   const navigate = useNavigate();
 
   const [membresias, setMembresias] = useState<Membresia[]>([]);
-  useEffect(() => {
-    // Llamada a la API para obtener las membresías
-    const fetchMembresias = async () => {
-      try {
-        const response = await fetch(`${Config.apiBaseUrl}/lista_membresias`);
-        const data = await response.json();
-        setMembresias(data); // Guarda los datos en el estado
-      } catch (error) {
-        console.error("Error al obtener las membresías:", error);
-      }
-    };
 
-    fetchMembresias();
-  }, []); // Solo se ejecuta una vez al montar el componente
+  const { error, loading, res, tipoUsuario } = ValidateSession({
+    route: "lista_membresias",
+    method: "GET",
+    setEstado: setMembresias,
+  });
 
-  const { error, loading } = ValidateSession({});
   if (loading) {
     return <Cargador />; // Mostrar un indicador de carga mientras valida
   }
@@ -44,6 +34,7 @@ function ListaMembresias() {
   if (error) {
     console.log(error);
   }
+  if (tipoUsuario != "admin") navigate("/");
 
   const handleNavigation = (route: string) => {
     navigate(route);
@@ -88,7 +79,7 @@ function ListaMembresias() {
                       <td>{item.vigencia_meses}</td>
                       <td>
                         <a href={`/actualizar_membresia/${item.cod_membresia}`}>
-                          Ver
+                          <i className="fa-regular fa-eye"></i>
                         </a>
                       </td>
                     </tr>

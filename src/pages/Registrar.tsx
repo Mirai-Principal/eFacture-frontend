@@ -4,9 +4,13 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
 import ValidarCI from "../scripts/ValidarCI";
-import Navbar from "../components/navbar";
+import Navbar from "../components/Navbar";
+import Cargador from "../components/Cargador";
+import ValidateSession from "../components/ValidateSession";
 
 const Registrar = () => {
+  const navigate = useNavigate();
+
   // Estado para los campos del formulario
   const [formData, setFormData] = useState({
     identificacion: "",
@@ -28,11 +32,33 @@ const Registrar = () => {
     });
   };
 
-  const [dniValido, setDniValido] = useState(false);
+  const [dniValido, setDniValido] = useState(true);
   const handleBlur = (e: FocusEvent) => {
     const dni = e.target.value;
-    setDniValido(ValidarCI(dni));
+    if (dni == "") setDniValido(true);
+    else setDniValido(ValidarCI(dni));
   };
+
+  const token = localStorage.getItem("token");
+  //? si hay sesion redirige a donde corresponda
+  if (token) {
+    const { error, loading, tipoUsuario } = ValidateSession({
+      route: "validate_token",
+      method: "POST",
+    });
+
+    if (loading) {
+      return <Cargador />; // Mostrar un indicador de carga mientras valida
+    }
+
+    if (error) {
+      console.log(error);
+    }
+
+    if (tipoUsuario == "cliente") navigate("/panel_cliente");
+    else if (tipoUsuario == "admin") navigate("/panel_admin");
+    else navigate("/");
+  }
 
   // Función para manejar el envío del formulario
   const handleSubmit = async (e: React.FormEvent) => {
@@ -72,123 +98,123 @@ const Registrar = () => {
       }
   };
 
-  const navigate = useNavigate();
   const handleLogin = () => {
     navigate("/login");
   };
 
   return (
-    <div className="container text-center">
+    <>
       <Navbar />
-      <div className="row my-4">
-        <div className="col-md-12 ">
-          <h2>Registro de Usuario</h2>
-          <form onSubmit={handleSubmit} className="w-50 mx-auto">
-            <div className="form-group">
-              <label htmlFor="identificacion">Identificación</label>
-              <br />
-              <input
-                type="text"
-                id="identificacion"
-                name="identificacion"
-                value={formData.identificacion}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                required
-                placeholder="Cedula / RUC"
-                pattern="[0-9]{10,13}"
-                title="Solo números del 0 al 9. Ej: 0202432143001"
-                className={`form-control border-0 border-bottom   ${
-                  dniValido
-                    ? "border border-success"
-                    : "border border-danger text-danger"
-                }`}
-              />
-              {dniValido ? (
-                ""
-              ) : (
-                <small className="text-danger">Cédula no valida</small>
-              )}
-            </div>
+      <div className="container contenido text-center">
+        <div className="row my-4">
+          <div className="col-md-12 ">
+            <h2>Registro de Usuario</h2>
+            <form onSubmit={handleSubmit} className="w-50 mx-auto">
+              <div className="form-group">
+                <label htmlFor="identificacion">Identificación</label>
+                <br />
+                <input
+                  type="text"
+                  id="identificacion"
+                  name="identificacion"
+                  value={formData.identificacion}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  required
+                  placeholder="Cedula / RUC"
+                  pattern="[0-9]{10,13}"
+                  title="Solo números del 0 al 9. Ej: 0202432143001"
+                  className={`form-control border-0 border-bottom   ${
+                    dniValido
+                      ? "border border-success"
+                      : "border border-danger text-danger"
+                  }`}
+                />
+                {dniValido ? (
+                  ""
+                ) : (
+                  <small className="text-danger">Cédula no valida</small>
+                )}
+              </div>
 
-            <div className="form-group">
-              <label htmlFor="nombre">Nombres</label>
-              <br />
-              <input
-                type="text"
-                id="nombres"
-                name="nombres"
-                value={formData.nombres}
-                onChange={handleChange}
-                required
-                className="form-control"
-              />
-            </div>
+              <div className="form-group">
+                <label htmlFor="nombre">Nombres</label>
+                <br />
+                <input
+                  type="text"
+                  id="nombres"
+                  name="nombres"
+                  value={formData.nombres}
+                  onChange={handleChange}
+                  required
+                  className="form-control"
+                />
+              </div>
 
-            <div className="form-group">
-              <label htmlFor="apellidos">Apellidos</label>
-              <br />
-              <input
-                type="text"
-                id="apellidos"
-                name="apellidos"
-                value={formData.apellidos}
-                onChange={handleChange}
-                required
-                className="form-control"
-              />
-            </div>
+              <div className="form-group">
+                <label htmlFor="apellidos">Apellidos</label>
+                <br />
+                <input
+                  type="text"
+                  id="apellidos"
+                  name="apellidos"
+                  value={formData.apellidos}
+                  onChange={handleChange}
+                  required
+                  className="form-control"
+                />
+              </div>
 
-            <div className="form-group">
-              <label htmlFor="correo">Correo Electrónico</label>
-              <br />
-              <input
-                type="email"
-                id="correo"
-                name="correo"
-                value={formData.correo}
-                onChange={handleChange}
-                required
-                className="form-control"
-                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,10}$"
-                title="Ingrese un correo válido. Ej: micorreo@gmail.com"
-              />
-            </div>
+              <div className="form-group">
+                <label htmlFor="correo">Correo Electrónico</label>
+                <br />
+                <input
+                  type="email"
+                  id="correo"
+                  name="correo"
+                  value={formData.correo}
+                  onChange={handleChange}
+                  required
+                  className="form-control"
+                  pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,10}$"
+                  title="Ingrese un correo válido. Ej: micorreo@gmail.com"
+                />
+              </div>
 
-            <div className="form-group">
-              <label htmlFor="password">Contraseña</label>
-              <br />
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                className="form-control"
-                pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
-                title="Debe contener al menos un número y una letra mayúscula y minúscula, y al menos 8 o más caracteres"
-              />
-            </div>
+              <div className="form-group">
+                <label htmlFor="password">Contraseña</label>
+                <br />
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  className="form-control"
+                  pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                  title="Debe contener al menos un número y una letra mayúscula y minúscula, y al menos 8 o más caracteres"
+                />
+              </div>
 
+              <button
+                type="submit"
+                className="register-btn btn btn-warning form-control"
+              >
+                Registrar
+              </button>
+            </form>
             <button
-              type="submit"
-              className="register-btn btn btn-warning form-control"
+              onClick={handleLogin}
+              className="btn btn-info d-block w-50 my-2 mx-auto"
             >
-              Registrar
+              Ingresar
             </button>
-          </form>
-          <button
-            onClick={handleLogin}
-            className="btn btn-info d-block w-50 my-2 mx-auto"
-          >
-            Ingresar
-          </button>
+          </div>
         </div>
       </div>
-
       <Footer />
-    </div>
+    </>
   );
 };
 
