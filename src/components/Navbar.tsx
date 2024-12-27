@@ -1,3 +1,32 @@
+import {
+  Disclosure,
+  DisclosureButton,
+  DisclosurePanel,
+} from "@headlessui/react";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+
+const handleLogout = () => {
+  // Eliminar el token
+  localStorage.removeItem("token");
+};
+
+const OpcionesCliente = [
+  { name: "Inicio", href: "/panel_cliente", current: true },
+  { name: "Precios", href: "/precios", current: false },
+  { name: "Perfil", href: "#", current: false },
+  { name: "Salir", href: "/", current: false, onClick: handleLogout },
+];
+
+const OpcionesAdmin = [
+  { name: "Inicio", href: "/panel_admin", current: true },
+  { name: "Perfil", href: "#", current: false },
+  { name: "Salir", href: "/", current: false, onClick: handleLogout },
+];
+
+function classNames(...classes) {
+  return classes.filter(Boolean).join(" ");
+}
+
 interface Props {
   es_cliente?: boolean;
   es_admin?: boolean;
@@ -5,119 +34,88 @@ interface Props {
 
 function Navbar(props: Props) {
   const { es_cliente, es_admin } = props;
+  let opciones = [];
+  if (es_admin) opciones = OpcionesAdmin;
+  else if (es_cliente) opciones = OpcionesCliente;
+
   return (
-    <nav className="navbar navbar-expand-lg bg-secondary  fixed-top ">
-      <div className="container-fluid">
-        <a className="navbar-brand text-white" href="/">
-          <img
-            src="/logo_navbar.png"
-            alt="Logo eFacture"
-            width="30"
-            height="24"
-          />
-          Efacture
-        </a>
-        {es_cliente ? <OpcionesCliente /> : ""}
-        {es_admin ? <OpcionesAdmin /> : ""}
+    <Disclosure as="nav" className="bg-gray-800">
+      <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+        <div className="relative flex h-16 items-center justify-between">
+          <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
+            {/* Mobile menu button*/}
+            {opciones.length != 0 ? (
+              <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                <span className="absolute -inset-0.5" />
+                <span className="sr-only">Open main menu</span>
+                <Bars3Icon
+                  aria-hidden="true"
+                  className="block size-6 group-data-[open]:hidden"
+                />
+                <XMarkIcon
+                  aria-hidden="true"
+                  className="hidden size-6 group-data-[open]:block"
+                />
+              </DisclosureButton>
+            ) : null}
+          </div>
+          <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
+            <div className="flex shrink-0 items-center">
+              <a href="/">
+                <img
+                  alt="Logo eFacture"
+                  src="/logo_navbar.png"
+                  className="h-8 w-auto"
+                />
+              </a>
+            </div>
+            <div className="hidden sm:ml-6 sm:block">
+              <div className="flex space-x-4">
+                {opciones.map((item) => (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    onClick={item.onClick}
+                    aria-current={item.current ? "page" : undefined}
+                    className={classNames(
+                      item.current
+                        ? "bg-gray-900 text-white"
+                        : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                      "rounded-md px-3 py-2 text-sm font-medium"
+                    )}
+                  >
+                    {item.name}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </nav>
+
+      <DisclosurePanel className="sm:hidden">
+        <div className="space-y-1 px-2 pb-3 pt-2">
+          {opciones.map((item) => (
+            <DisclosureButton
+              key={item.name}
+              as="a"
+              href={item.href}
+              onClick={item.onClick}
+              aria-current={item.current ? "page" : undefined}
+              className={classNames(
+                item.current
+                  ? "bg-gray-900 text-white"
+                  : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                "block rounded-md px-3 py-2 text-base font-medium"
+              )}
+            >
+              {item.name}
+            </DisclosureButton>
+          ))}
+        </div>
+      </DisclosurePanel>
+    </Disclosure>
   );
 }
 
 export default Navbar;
-
-const handleLogout = () => {
-  // Eliminar el token
-  localStorage.removeItem("token");
-};
-export function OpcionesCliente() {
-  return (
-    <>
-      <button
-        className="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbarNav"
-        aria-controls="navbarNav"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span className="navbar-toggler-icon"></span>
-      </button>
-      <div className="collapse navbar-collapse" id="navbarNav">
-        <ul className="navbar-nav ms-auto">
-          <li className="nav-item">
-            <a
-              className="nav-link active"
-              aria-current="page"
-              href="/panel_cliente"
-            >
-              Inicio
-            </a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="#">
-              Precios
-            </a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="#">
-              Perfil
-            </a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="/" onClick={handleLogout}>
-              Salir
-            </a>
-          </li>
-          {/* <li className="nav-item">
-            <a className="nav-link disabled" aria-disabled="true">
-              xdxd
-            </a>
-          </li> */}
-        </ul>
-      </div>
-    </>
-  );
-}
-
-export function OpcionesAdmin() {
-  return (
-    <>
-      <button
-        className="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbarNav"
-        aria-controls="navbarNav"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span className="navbar-toggler-icon"></span>
-      </button>
-      <div className="collapse navbar-collapse" id="navbarNav">
-        <ul className="navbar-nav ms-auto">
-          <li className="nav-item">
-            <a
-              className="nav-link active"
-              aria-current="page"
-              href="/panel_admin"
-            >
-              Inicio
-            </a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="#">
-              Perfil
-            </a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="/" onClick={handleLogout}>
-              Salir
-            </a>
-          </li>
-        </ul>
-      </div>
-    </>
-  );
-}
