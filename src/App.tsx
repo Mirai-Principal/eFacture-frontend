@@ -14,6 +14,7 @@ import NuevaMembresia from "./pages/Admin/NuevaMembresia";
 import MembresiaModificar from "./pages/Admin/MembresiaModificar";
 import Categorias from "./pages/Admin/Categorias";
 import Precios from "./pages/Precios";
+import MiSuscripcion from "./pages/MiSuscripcion";
 
 const App = () => {
   return (
@@ -27,6 +28,7 @@ const App = () => {
 
         <Route path="/panel_cliente" element={<PanelCliente />} />
         <Route path="/precios" element={<Precios />} />
+        <Route path="/mi_suscripcion" element={<MiSuscripcion />} />
 
         <Route path="/panel_admin" element={<PanelAdmin />} />
         <Route path="/lista_membresias" element={<ListaMembresias />} />
