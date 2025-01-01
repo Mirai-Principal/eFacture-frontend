@@ -68,22 +68,32 @@ function ListaMembresias() {
                   </tr>
                 </thead>
                 <tbody id="lista_membresias">
-                  {membresias.map((item, index) => (
-                    <tr key={index}>
-                      <td>{item.nombre_membresia}</td>
-                      <td>${item.precio.toFixed(2)}</td>
-                      <td>{item.estado}</td>
-                      <td>
-                        {new Date(item.fecha_lanzamiento).toLocaleDateString()}
-                      </td>
-                      <td>{item.vigencia_meses}</td>
-                      <td>
-                        <a href={`/actualizar_membresia/${item.cod_membresia}`}>
-                          <i className="fa-regular fa-eye"></i>
-                        </a>
-                      </td>
+                  {res.message ? (
+                    <tr>
+                      <td colSpan={5}>{res.message}</td>
                     </tr>
-                  ))}
+                  ) : (
+                    membresias.map((item, index) => (
+                      <tr key={index}>
+                        <td>{item.nombre_membresia}</td>
+                        <td>${item.precio.toFixed(2)}</td>
+                        <td>{item.estado}</td>
+                        <td>
+                          {new Date(
+                            item.fecha_lanzamiento
+                          ).toLocaleDateString()}
+                        </td>
+                        <td>{item.vigencia_meses}</td>
+                        <td>
+                          <a
+                            href={`/actualizar_membresia/${item.cod_membresia}`}
+                          >
+                            <i className="fa-regular fa-eye"></i>
+                          </a>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>

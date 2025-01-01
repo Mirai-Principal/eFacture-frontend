@@ -28,7 +28,7 @@ const PanelAdmin = () => {
   return (
     <>
       <Navbar es_admin={true} />
-      <div className="container contenido">
+      <div className="container ">
         <div className=" mt-5 ">
           <h1 className="text-center mb-4">Panel de Administrador</h1>
           <div className="row d-flex justify-content-center">

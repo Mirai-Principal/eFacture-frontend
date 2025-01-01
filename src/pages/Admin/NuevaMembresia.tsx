@@ -14,6 +14,7 @@ const NuevaMembresia = () => {
   const [formData, setFormData] = useState({
     nombre_membresia: "",
     descripcion_membresia: "",
+    caracterisicas: "",
     precio: "",
     cant_comprobantes_carga: "",
     estado: "disponible",
@@ -110,11 +111,29 @@ const NuevaMembresia = () => {
               <label className="form-label" htmlFor="descripcion_membresia">
                 Descripción de la Membresía
               </label>
-              <textarea
+              <input
+                type="text"
                 className="form-control"
                 id="descripcion_membresia"
                 name="descripcion_membresia"
                 value={formData.descripcion_membresia}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            {/* caracterisicas Membresía */}
+            <div className="mb-3">
+              <label className="form-label" htmlFor="caracterisicas">
+                Caracteristicas de la Membresía
+                <br />
+                <small>Poner cada característica en una linea</small>
+              </label>
+              <textarea
+                className="form-control"
+                id="caracterisicas"
+                name="caracterisicas"
+                value={formData.caracterisicas}
                 onChange={handleChange}
                 rows={3}
                 required

@@ -20,18 +20,3 @@ input[type="tel"]:focus,
 input[type="url"]:focus {
   border-bottom: 1px solid #007bff; /* Cambiar el color del borde inferior al hacer focus */
 }
-
-body {
-  background: #f1f1f1;
-}
-
-.contenido {
-  background: white;
-  margin-top: 60px;
-  padding-top: 1%;
-  min-height: calc(100vh - 60px);
-}
-
-.navbar a {
-  color: white !important;
-}

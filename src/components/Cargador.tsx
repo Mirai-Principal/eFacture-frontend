@@ -6,20 +6,11 @@ interface LoaderProps {
 
 const Cargador = ({ message = "Cargando..." }: LoaderProps) => {
   return (
-    <div
-      className="d-flex justify-content-center align-items-center"
-      style={{ height: "100vh", backgroundColor: "rgba(0, 0, 0, 0.10" }}
-    >
-      <div className="text-center">
-        <div
-          className="spinner-border text-primary"
-          role="status"
-          style={{ width: "3rem", height: "3rem" }}
-        >
-          <span className="visually-hidden">Cargando...</span>
-        </div>
-        <p className="mt-3">{message}</p>
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+      <div className="w-16 h-16 border-4 border-t-4 border-blue-500 border-solid rounded-full animate-spin">
+        .
       </div>
+      {message}
     </div>
   );
 };

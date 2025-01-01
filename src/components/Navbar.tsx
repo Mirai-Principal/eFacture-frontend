@@ -13,6 +13,7 @@ const handleLogout = () => {
 const OpcionesCliente = [
   { name: "Inicio", href: "/panel_cliente", current: true },
   { name: "Precios", href: "/precios", current: false },
+  { name: "Mi suscripción", href: "/mi_suscripcion", current: false },
   { name: "Perfil", href: "#", current: false },
   { name: "Salir", href: "/", current: false, onClick: handleLogout },
 ];
@@ -39,7 +40,7 @@ function Navbar(props: Props) {
   else if (es_cliente) opciones = OpcionesCliente;
 
   return (
-    <Disclosure as="nav" className="bg-gray-800">
+    <Disclosure as="nav" className="bg-gray-800 fixed z-10 min-w-full ">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
         <div className="relative flex h-16 items-center justify-between">
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">

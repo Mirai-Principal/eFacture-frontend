@@ -4,6 +4,7 @@ import ValidateSession from "../components/ValidateSession";
 import Cargador from "../components/Cargador";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
+import BackgroundPage from "../components/BackgroundPage";
 
 const PanelCliente = () => {
   const navigate = useNavigate();
@@ -30,7 +31,9 @@ const PanelCliente = () => {
   return (
     <>
       <Navbar es_cliente={true} />
-      <div className="container contenido">
+      <div className="relative isolate bg-white px-6 py-24 sm:py-32 lg:px-4 min-h-screen ">
+        <BackgroundPage />
+
         <div className=" mt-5 ">
           <h1 className="text-center mb-4">Panel de Usuario</h1>
           <div className="row d-flex justify-content-center">
