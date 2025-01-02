@@ -15,6 +15,7 @@ import MembresiaModificar from "./pages/Admin/MembresiaModificar";
 import Categorias from "./pages/Admin/Categorias";
 import Precios from "./pages/Precios";
 import MiSuscripcion from "./pages/MiSuscripcion";
+import ListaSueldoBasico from "./pages/Admin/ListaSueldoBasico";
 
 const App = () => {
   return (
@@ -37,6 +38,8 @@ const App = () => {
           path="/actualizar_membresia/:cod_membresia"
           element={<MembresiaModificar />}
         />
+        <Route path="/sueldo_basico" element={<ListaSueldoBasico />} />
+
         <Route path="/categorias" element={<Categorias />} />
       </Routes>
     </Router>

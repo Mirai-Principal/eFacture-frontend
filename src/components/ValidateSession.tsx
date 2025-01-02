@@ -77,7 +77,7 @@ const ValidateSession = (props: ValidateProps) => {
         // Guardar token para futuras solicitudes
         const new_token = response.headers.get("Authorization");
         localStorage.removeItem("token");
-        localStorage.setItem("token", new_token);
+        localStorage.setItem("token", new_token!);
 
         // console.log("Validación exitosa:", data);
       } catch (err) {

@@ -20,11 +20,15 @@ const NuevaMembresia = () => {
     estado: "disponible",
     fecha_lanzamiento: "",
     vigencia_meses: "",
-    fecha_finalizacion: "2025-12-19",
+    fecha_finalizacion: "",
   });
 
   // Función para manejar el cambio en los campos del formulario
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
@@ -58,7 +62,7 @@ const NuevaMembresia = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: token,
+          Authorization: token!,
         },
         body: JSON.stringify(formData),
       });

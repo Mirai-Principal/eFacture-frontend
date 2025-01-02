@@ -1,85 +1,231 @@
-import { CalendarDaysIcon, HandRaisedIcon } from "@heroicons/react/24/outline";
+import React, { useState } from "react";
 
-export default function Example() {
+import { PencilIcon } from "@heroicons/react/24/outline"; // También puedes usar '/solid'
+
+import BackgroundPage from "../../components/BackgroundPage";
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
+import { useNavigate } from "react-router-dom";
+import Cargador from "../../components/Cargador";
+import ValidateSession from "../../components/ValidateSession";
+import Swal from "sweetalert2";
+import Config from "../../components/Config";
+
+interface CategoriasResponse {
+  cod_categoria: "";
+  categoria: string;
+  descripcion_categoria: string;
+  cant_sueldos_basico: number;
+  created_at: string;
+}
+
+function Categorias() {
+  const navigate = useNavigate();
+
+  const token = localStorage.getItem("token");
+
+  const [formData, setFormData] = useState({
+    cod_categoria: "",
+    categoria: "",
+    descripcion_categoria: "",
+    cant_sueldos_basico: "",
+  });
+
+  const [categorias, setCategorias] = useState<CategoriasResponse[]>([]);
+  const [tituloForm, setTituloForm] = useState("Nueva Categoría");
+
+  // Función para manejar el cambio en los campos del formulario
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { id, value } = e.target;
+    setFormData({
+      ...formData,
+      [id]: value,
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    // console.log(formData);
+
+    try {
+      const response = await fetch(`${Config.apiBaseUrl}/categorias_insert`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token!,
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Swal.fire(data.message);
+        window.location.reload();
+      } else {
+        Swal.fire(data.detail);
+        console.error("Error:", data.detail);
+      }
+    } catch (error) {
+      Swal.fire("Hubo un error: " + error);
+      console.error("Error:", error);
+    }
+  };
+
+  const handleEdit =
+    (categoria: CategoriasResponse) => async (e: React.MouseEvent) => {
+      e.preventDefault();
+      // console.log(categoria);
+      setFormData({
+        cod_categoria: categoria.cod_categoria,
+        categoria: categoria.categoria,
+        descripcion_categoria: categoria.descripcion_categoria,
+        cant_sueldos_basico: categoria.cant_sueldos_basico.toString(),
+      });
+      setTituloForm("Editar Categoría");
+    };
+
+  //valida la sesion
+  const { error, loading, tipoUsuario } = ValidateSession({
+    route: "categorias_lista",
+    method: "GET",
+    setEstado: setCategorias,
+  });
+  if (loading) {
+    return <Cargador />; // Mostrar un indicador de carga mientras valida
+  }
+  if (error) {
+    console.log(error);
+  }
+  if (tipoUsuario && tipoUsuario != "admin") navigate("/");
+
   return (
-    <div className="relative isolate overflow-hidden bg-gray-900 py-16 sm:py-24 lg:py-32">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-2">
-          <div className="max-w-xl lg:max-w-lg">
-            <h2 className="text-4xl font-semibold tracking-tight text-white">
-              Subscribe to our newsletter
-            </h2>
-            <p className="mt-4 text-lg text-gray-300">
-              Nostrud amet eu ullamco nisi aute in ad minim nostrud adipisicing
-              velit quis. Duis tempor incididunt dolore.
-            </p>
-            <div className="mt-6 flex max-w-md gap-x-4">
-              <label htmlFor="email-address" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email-address"
-                name="email"
-                type="email"
-                required
-                placeholder="Enter your email"
-                autoComplete="email"
-                className="min-w-0 flex-auto rounded-md bg-white/5 px-3.5 py-2 text-base text-white outline outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6"
-              />
+    <>
+      <Navbar es_admin={true} />
+      <div className="relative isolate bg-white px-6 py-24 sm:py-32 lg:px-4 min-h-screen">
+        <BackgroundPage />
+        <div className="mx-auto max-w-4xl text-center">
+          <h2 className="text-base/7 font-semibold text-indigo-600">
+            Categorias de comprobante electrónicos
+          </h2>
+        </div>
+
+        <div className="mx-auto mt-16 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-4xl lg:grid-cols-2">
+          {/* Columna 1: Formulario */}
+          <div className="bg-white p-6 rounded-lg shadow-md mx-1">
+            <h2 className="text-xl font-semibold mb-4">{tituloForm}</h2>
+            <form onSubmit={handleSubmit}>
+              <div className="mb-4">
+                <label
+                  htmlFor="categoria"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Categoría
+                </label>
+                <input
+                  type="text"
+                  id="categoria"
+                  value={formData.categoria}
+                  maxLength={50}
+                  onChange={handleChange}
+                  className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
+                  required
+                />
+              </div>
+
+              <div className="mb-4">
+                <label
+                  htmlFor="descripcion_categoria"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Descripción de la Categoría
+                </label>
+                <textarea
+                  className="fmt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
+                  id="descripcion_categoria"
+                  name="descripcion_categoria"
+                  value={formData.descripcion_categoria}
+                  onChange={handleChange}
+                  rows={3}
+                  required
+                ></textarea>
+              </div>
+
+              <div className="mb-4">
+                <label
+                  htmlFor="cant_sueldos_basico"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Cantidad de Sueldos Básicos
+                </label>
+                <input
+                  type="number"
+                  id="cant_sueldos_basico"
+                  value={formData.cant_sueldos_basico}
+                  min={1}
+                  max={1000}
+                  onChange={handleChange}
+                  className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
+                  required
+                />
+              </div>
+
               <button
                 type="submit"
-                className="flex-none rounded-md bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+                className="w-full py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 transition"
               >
-                Subscribe
+                Guardar
               </button>
-            </div>
+            </form>
           </div>
-          <dl className="grid grid-cols-1 gap-x-8 gap-y-10 sm:grid-cols-2 lg:pt-2">
-            <div className="flex flex-col items-start">
-              <div className="rounded-md bg-white/5 p-2 ring-1 ring-white/10">
-                <CalendarDaysIcon
-                  aria-hidden="true"
-                  className="size-6 text-white"
-                />
-              </div>
-              <dt className="mt-4 text-base font-semibold text-white">
-                Weekly articles
-              </dt>
-              <dd className="mt-2 text-base/7 text-gray-400">
-                Non laboris consequat cupidatat laborum magna. Eiusmod non irure
-                cupidatat duis commodo amet.
-              </dd>
-            </div>
-            <div className="flex flex-col items-start">
-              <div className="rounded-md bg-white/5 p-2 ring-1 ring-white/10">
-                <HandRaisedIcon
-                  aria-hidden="true"
-                  className="size-6 text-white"
-                />
-              </div>
-              <dt className="mt-4 text-base font-semibold text-white">
-                No spam
-              </dt>
-              <dd className="mt-2 text-base/7 text-gray-400">
-                Officia excepteur ullamco ut sint duis proident non adipisicing.
-                Voluptate incididunt anim.
-              </dd>
-            </div>
-          </dl>
+
+          {/* Columna 2: Tabla de sueldos básicos */}
+          <div className="bg-white p-4 rounded-lg shadow-md mx-1 min-h-full">
+            <h2 className="text-xl font-semibold mb-4">Lista de Categorías</h2>
+            <table className="min-w-full table-auto border-collapse  min-h-full">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="py-2 px-4 border-b text-left text-sm font-medium text-gray-700">
+                    Categoría
+                  </th>
+                  <th className="py-2 px-4 border-b text-left text-sm font-medium text-gray-700">
+                    Descripción
+                  </th>
+                  <th className="py-2 px-4 border-b text-left text-sm font-medium text-gray-700">
+                    #SBU
+                  </th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {categorias.map((fila, index) => (
+                  <tr key={index}>
+                    <td className="py-2 px-4 border-b text-sm text-gray-800">
+                      {fila.categoria}
+                    </td>
+                    <td className="py-2 px-4 border-b text-sm text-gray-800">
+                      {fila.descripcion_categoria.slice(0, 20) + "..."}
+                    </td>
+                    <td className="py-2 px-4 border-b text-sm text-gray-800">
+                      {fila.cant_sueldos_basico}
+                    </td>
+                    <td className="py-2 px-4 border-b text-sm text-gray-800">
+                      <a href="#" onClick={handleEdit(fila)}>
+                        <PencilIcon className="h-5 w-5 mr-2" />
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-      <div
-        aria-hidden="true"
-        className="absolute left-1/2 top-0 -z-10 -translate-x-1/2 blur-3xl xl:-top-6"
-      >
-        <div
-          style={{
-            clipPath:
-              "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
-          }}
-          className="aspect-[1155/678] w-[72.1875rem] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30"
-        />
-      </div>
-    </div>
+      <Footer />
+    </>
   );
 }
+
+export default Categorias;
