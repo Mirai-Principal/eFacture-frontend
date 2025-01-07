@@ -6,6 +6,7 @@ import Footer from "../../components/Footer";
 import Navbar from "../../components/Navbar";
 import Swal from "sweetalert2";
 import Config from "../../components/Config";
+import BackgroundPage from "../../components/BackgroundPage";
 
 const MembresiaModificar = () => {
   const navigate = useNavigate();
@@ -71,15 +72,14 @@ const MembresiaModificar = () => {
         }
       );
       // Verificar si la respuesta es exitosa
-      if (!response.ok) {
-        const data = await response.json();
-        // console.log(data.detail);
-        Swal.fire(`${data.detail}`);
-      } else {
-        const data = await response.json();
-        // console.log(data.detail);
-        Swal.fire(data.detail);
+      const data = await response.json();
+
+      if (response.ok) {
+        Swal.fire(data.message);
         navigate("/lista_membresias");
+      } else {
+        Swal.fire(data.detail);
+        console.error("Error:", data.detail);
       }
     } catch (err) {
       console.error("Error:", err);
@@ -93,154 +93,186 @@ const MembresiaModificar = () => {
     <>
       <Navbar es_admin={true} />
 
-      <div className="container contenido py-4">
-        <div className="row text-center">
-          <h2>Actualizar Membresía</h2>
+      <div className="relative isolate bg-white px-6 py-24 sm:py-32 lg:px-4 min-h-screen">
+        <BackgroundPage />
+        <div className="mx-auto max-w-4xl text-center">
+          <h2 className="mt-2 text-balance text-5xl font-semibold tracking-tight text-gray-900 sm:text-6xl">
+            Actualizar Membresía
+          </h2>
         </div>
-        <div className="row">
-          <form onSubmit={handleSubmit}>
-            {/* Nombre Membresía */}
-            <div className="mb-3">
-              <label className="form-label" htmlFor="nombre_membresia">
-                Nombre de la Membresía
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="nombre_membresia"
-                name="nombre_membresia"
-                value={formData.nombre_membresia}
-                onChange={handleChange}
-                required
-              />
-            </div>
+        <div className="mx-auto mt-16  max-w-lg  items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-4xl lg:grid-cols-2">
+          {/* Columna 1: Formulario */}
+          <div className="bg-white p-6 rounded-lg shadow-md mx-auto">
+            <form onSubmit={handleSubmit}>
+              {/* Nombre Membresía */}
+              <div className="mb-3">
+                <label
+                  className="block text-sm font-medium text-gray-700"
+                  htmlFor="nombre_membresia"
+                >
+                  Nombre de la Membresía
+                </label>
+                <input
+                  type="text"
+                  className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
+                  id="nombre_membresia"
+                  name="nombre_membresia"
+                  value={formData.nombre_membresia}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
 
-            {/* Descripción Membresía */}
-            <div className="mb-3">
-              <label className="form-label" htmlFor="descripcion_membresia">
-                Descripción de la Membresía
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="descripcion_membresia"
-                name="descripcion_membresia"
-                value={formData.descripcion_membresia}
-                onChange={handleChange}
-                required
-              />
-            </div>
+              {/* Descripción Membresía */}
+              <div className="mb-3">
+                <label
+                  className="block text-sm font-medium text-gray-700"
+                  htmlFor="descripcion_membresia"
+                >
+                  Descripción de la Membresía
+                </label>
+                <input
+                  type="text"
+                  className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
+                  id="descripcion_membresia"
+                  name="descripcion_membresia"
+                  value={formData.descripcion_membresia}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
 
-            {/* caracterisicas Membresía */}
-            <div className="mb-3">
-              <label className="form-label" htmlFor="caracterisicas">
-                Caracteristicas de la Membresía
-                <br />
-                <small>Poner cada característica en una linea</small>
-              </label>
-              <textarea
-                className="form-control"
-                id="caracterisicas"
-                name="caracterisicas"
-                value={formData.caracterisicas}
-                onChange={handleChange}
-                rows={3}
-                required
-              ></textarea>
-            </div>
+              {/* caracteristicas Membresía */}
+              <div className="mb-3">
+                <label
+                  className="block text-sm font-medium text-gray-700"
+                  htmlFor="caracteristicas"
+                >
+                  Caracteristicas de la Membresía
+                  <br />
+                  <small>Poner cada característica en una linea</small>
+                </label>
+                <textarea
+                  className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
+                  id="caracteristicas"
+                  name="caracteristicas"
+                  value={formData.caracteristicas}
+                  onChange={handleChange}
+                  rows={3}
+                  required
+                ></textarea>
+              </div>
 
-            {/* Precio */}
-            <div className="mb-3">
-              <label className="form-label" htmlFor="precio">
-                Precio
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                className="form-control"
-                id="precio"
-                name="precio"
-                value={formData.precio}
-                onChange={handleChange}
-                min={0}
-                required
-              />
-            </div>
+              {/* Precio */}
+              <div className="mb-3">
+                <label
+                  className="block text-sm font-medium text-gray-700"
+                  htmlFor="precio"
+                >
+                  Precio
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
+                  id="precio"
+                  name="precio"
+                  value={formData.precio}
+                  onChange={handleChange}
+                  min={0}
+                  required
+                />
+              </div>
 
-            {/* Cantidad de Comprobantes */}
-            <div className="mb-3">
-              <label className="form-label" htmlFor="cant_comprobantes_carga">
-                Cantidad de Comprobantes de Carga
-              </label>
-              <input
-                type="number"
-                className="form-control"
-                id="cant_comprobantes_carga"
-                name="cant_comprobantes_carga"
-                value={formData.cant_comprobantes_carga}
-                onChange={handleChange}
-                min={0}
-                required
-              />
-            </div>
+              {/* Cantidad de Comprobantes */}
+              <div className="mb-3">
+                <label
+                  className="block text-sm font-medium text-gray-700"
+                  htmlFor="cant_comprobantes_carga"
+                >
+                  Cantidad de Comprobantes de Carga
+                </label>
+                <input
+                  type="number"
+                  className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
+                  id="cant_comprobantes_carga"
+                  name="cant_comprobantes_carga"
+                  value={formData.cant_comprobantes_carga}
+                  onChange={handleChange}
+                  min={0}
+                  required
+                />
+              </div>
 
-            {/* Estado */}
-            <div className="mb-3">
-              <label className="form-label" htmlFor="estado">
-                Estado
-              </label>
-              <select
-                className="form-select"
-                id="estado"
-                name="estado"
-                value={formData.estado}
-                onChange={handleChange}
-                required
+              {/* Estado */}
+              <div className="mb-3">
+                <label
+                  className="block text-sm font-medium text-gray-700"
+                  htmlFor="estado"
+                >
+                  Estado
+                </label>
+                <select
+                  className="form-select"
+                  id="estado"
+                  name="estado"
+                  value={formData.estado}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="disponible">Disponible</option>
+                  <option value="no disponible">No Disponible</option>
+                </select>
+              </div>
+
+              {/* Fecha de Lanzamiento */}
+              <div className="mb-3">
+                <label
+                  className="block text-sm font-medium text-gray-700"
+                  htmlFor="fecha_lanzamiento"
+                >
+                  Fecha de Lanzamiento
+                </label>
+                <input
+                  type="date"
+                  className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
+                  id="fecha_lanzamiento"
+                  name="fecha_lanzamiento"
+                  value={formData.fecha_lanzamiento}
+                  onChange={handleChange}
+                  min={today}
+                  required
+                />
+              </div>
+
+              {/* Vigencia en Meses */}
+              <div className="mb-3">
+                <label
+                  className="block text-sm font-medium text-gray-700"
+                  htmlFor="vigencia_meses"
+                >
+                  Vigencia (Meses)
+                </label>
+                <input
+                  type="number"
+                  className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
+                  id="vigencia_meses"
+                  name="vigencia_meses"
+                  value={formData.vigencia_meses}
+                  onChange={handleChange}
+                  min={0}
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 transition"
               >
-                <option value="disponible">Disponible</option>
-                <option value="no disponible">No Disponible</option>
-              </select>
-            </div>
-
-            {/* Fecha de Lanzamiento */}
-            <div className="mb-3">
-              <label className="form-label" htmlFor="fecha_lanzamiento">
-                Fecha de Lanzamiento
-              </label>
-              <input
-                type="date"
-                className="form-control"
-                id="fecha_lanzamiento"
-                name="fecha_lanzamiento"
-                value={formData.fecha_lanzamiento}
-                onChange={handleChange}
-                min={today}
-                required
-              />
-            </div>
-
-            {/* Vigencia en Meses */}
-            <div className="mb-3">
-              <label className="form-label" htmlFor="vigencia_meses">
-                Vigencia (Meses)
-              </label>
-              <input
-                type="number"
-                className="form-control"
-                id="vigencia_meses"
-                name="vigencia_meses"
-                value={formData.vigencia_meses}
-                onChange={handleChange}
-                min={0}
-                required
-              />
-            </div>
-
-            {/* Botón de Enviar */}
-            <button type="submit" className="btn btn-primary form-control">
-              Registrar Membresía
-            </button>
-          </form>
+                Registrar
+              </button>
+            </form>
+          </div>
         </div>
       </div>
       <Footer />

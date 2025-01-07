@@ -25,7 +25,7 @@ function ListaSueldoBasico() {
 
   const [sueldoBasico, setSueldoBasico] = useState<SueldoBasicoDatos[]>([]);
 
-  const { error, loading, tipoUsuario } = ValidateSession({
+  const { error, loading, tipoUsuario, res } = ValidateSession({
     route: "lista_sueldo_basico",
     method: "GET",
     setEstado: setSueldoBasico,
@@ -176,16 +176,22 @@ function ListaSueldoBasico() {
                 </tr>
               </thead>
               <tbody>
-                {sueldoBasico.map((fila, index) => (
-                  <tr key={index}>
-                    <td className="py-2 px-4 border-b text-sm text-gray-800">
-                      {fila.valor_sueldo} USD
-                    </td>
-                    <td className="py-2 px-4 border-b text-sm text-gray-800">
-                      {fila.periodo_fiscal}
-                    </td>
+                {res.message ? (
+                  <tr>
+                    <td colSpan={2}>{res.message}</td>
                   </tr>
-                ))}
+                ) : (
+                  sueldoBasico.map((fila, index) => (
+                    <tr key={index} className="hover:bg-gray-50">
+                      <td className="py-2 px-4 border-b text-sm text-gray-800">
+                        {fila.valor_sueldo} USD
+                      </td>
+                      <td className="py-2 px-4 border-b text-sm text-gray-800">
+                        {fila.periodo_fiscal}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

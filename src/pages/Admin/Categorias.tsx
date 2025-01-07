@@ -88,7 +88,7 @@ function Categorias() {
     };
 
   //valida la sesion
-  const { error, loading, tipoUsuario } = ValidateSession({
+  const { error, loading, tipoUsuario, res } = ValidateSession({
     route: "categorias_lista",
     method: "GET",
     setEstado: setCategorias,
@@ -100,6 +100,7 @@ function Categorias() {
     console.log(error);
   }
   if (tipoUsuario && tipoUsuario != "admin") navigate("/");
+  console.log(res);
 
   return (
     <>
@@ -200,24 +201,30 @@ function Categorias() {
                 </tr>
               </thead>
               <tbody>
-                {categorias.map((fila, index) => (
-                  <tr key={index}>
-                    <td className="py-2 px-4 border-b text-sm text-gray-800">
-                      {fila.categoria}
-                    </td>
-                    <td className="py-2 px-4 border-b text-sm text-gray-800">
-                      {fila.descripcion_categoria.slice(0, 20) + "..."}
-                    </td>
-                    <td className="py-2 px-4 border-b text-sm text-gray-800">
-                      {fila.cant_sueldos_basico}
-                    </td>
-                    <td className="py-2 px-4 border-b text-sm text-gray-800">
-                      <a href="#" onClick={handleEdit(fila)}>
-                        <PencilIcon className="h-5 w-5 mr-2" />
-                      </a>
-                    </td>
+                {res.message ? (
+                  <tr>
+                    <td colSpan={3}>{res.message}</td>
                   </tr>
-                ))}
+                ) : (
+                  categorias.map((fila, index) => (
+                    <tr key={index} className="hover:bg-gray-50">
+                      <td className="py-2 px-4 border-b text-sm text-gray-800">
+                        {fila.categoria}
+                      </td>
+                      <td className="py-2 px-4 border-b text-sm text-gray-800">
+                        {fila.descripcion_categoria.slice(0, 20) + "..."}
+                      </td>
+                      <td className="py-2 px-4 border-b text-sm text-gray-800">
+                        {fila.cant_sueldos_basico}
+                      </td>
+                      <td className="py-2 px-4 border-b text-sm text-gray-800">
+                        <a href="#" onClick={handleEdit(fila)}>
+                          <PencilIcon className="h-5 w-5 mr-2" />
+                        </a>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

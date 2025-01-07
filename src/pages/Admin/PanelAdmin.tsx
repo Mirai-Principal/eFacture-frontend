@@ -1,8 +1,17 @@
 import { useNavigate } from "react-router-dom";
+
+import {
+  UsersIcon,
+  ClipboardIcon,
+  CurrencyDollarIcon,
+  TagIcon,
+} from "@heroicons/react/24/outline";
+
 import ValidateSession from "../../components/ValidateSession";
 import Cargador from "../../components/Cargador";
 import Footer from "../../components/Footer";
 import Navbar from "../../components/Navbar";
+import BackgroundPage from "../../components/BackgroundPage";
 
 const PanelAdmin = () => {
   const navigate = useNavigate();
@@ -25,57 +34,60 @@ const PanelAdmin = () => {
   const handleNavigation = (route: string) => {
     navigate(route);
   };
+
+  const options = [
+    {
+      name: "Gestionar Membresías",
+      icon: ClipboardIcon,
+      bgColor: "bg-blue-500",
+      href: "/lista_membresias",
+    },
+    {
+      name: "Gestionar Categorías",
+      icon: TagIcon,
+      bgColor: "bg-green-500",
+      href: "/categorias",
+    },
+    {
+      name: "Listar Clientes Registrados",
+      icon: UsersIcon,
+      bgColor: "bg-purple-500",
+      href: "/lista_clientes",
+    },
+    {
+      name: "Sueldo Básico",
+      icon: CurrencyDollarIcon,
+      bgColor: "bg-yellow-500",
+      href: "/sueldo_basico",
+    },
+  ];
   return (
     <>
       <Navbar es_admin={true} />
-      <div className="container ">
-        <div className=" mt-5 ">
-          <h1 className="text-center mb-4">Panel de Administrador</h1>
-          <div className="row d-flex justify-content-center">
-            {/* Botón Extraer comprobantes */}
-            <div className="col-12 col-md-6 col-lg-3 mb-3">
-              <button
-                className="btn btn-primary w-100 p-3"
-                onClick={() => handleNavigation("/lista_membresias")}
-              >
-                Gestionar Membresías
-              </button>
-            </div>
 
-            {/* Botón Realizar deducción */}
-            <div className="col-12 col-md-6 col-lg-3 mb-3">
-              <button
-                className="btn btn-success w-100 p-3"
-                onClick={() => handleNavigation("/categorias")}
+      <div className="relative isolate bg-white px-6 py-24 sm:py-32 lg:px-4 min-h-screen">
+        <BackgroundPage />
+        <div className="mx-auto max-w-4xl text-center">
+          <p className="mt-2 text-balance text-5xl font-semibold tracking-tight text-gray-900 sm:text-6xl">
+            Panel del Administrador
+          </p>
+        </div>
+        <div className="flex items-center justify-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 p-6 bg-white shadow-lg rounded-lg">
+            {options.map((option, index) => (
+              <div
+                key={index}
+                onClick={() => handleNavigation(option.href)}
+                className={`flex items-center gap-4 p-4 rounded-lg cursor-pointer hover:shadow-md hover:scale-105 transition-transform duration-300 ${option.bgColor} text-white`}
               >
-                Gestionar categorías
-              </button>
-            </div>
-          </div>
-
-          <div className="row d-flex justify-content-center">
-            {/* Botón Ver historial de deducciones */}
-            <div className="col-12 col-md-6 col-lg-3 mb-3">
-              <button
-                className="btn btn-warning w-100 p-3"
-                onClick={() => handleNavigation("/lista_clientes")}
-              >
-                Listar clientes registrados
-              </button>
-            </div>
-
-            {/* Botón Predicción de gastos */}
-            <div className="col-12 col-md-6 col-lg-3 mb-3">
-              <button
-                className="btn btn-info w-100 p-3"
-                onClick={() => handleNavigation("/sueldo_basico")}
-              >
-                Sueldo básico
-              </button>
-            </div>
+                <option.icon className="w-10 h-10" />
+                <span className="text-lg font-semibold">{option.name}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
+
       <Footer />
     </>
   );

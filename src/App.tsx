@@ -16,6 +16,7 @@ import Categorias from "./pages/Admin/Categorias";
 import Precios from "./pages/Precios";
 import MiSuscripcion from "./pages/MiSuscripcion";
 import ListaSueldoBasico from "./pages/Admin/ListaSueldoBasico";
+import ExtraerComprobantes from "./pages/ExtraerComprobantes";
 
 const App = () => {
   return (
@@ -41,6 +42,8 @@ const App = () => {
         <Route path="/sueldo_basico" element={<ListaSueldoBasico />} />
 
         <Route path="/categorias" element={<Categorias />} />
+
+        <Route path="/extraer_comprobantes" element={<ExtraerComprobantes />} />
       </Routes>
     </Router>
   );

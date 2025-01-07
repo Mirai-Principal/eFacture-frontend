@@ -7,6 +7,7 @@ import ValidarCI from "../scripts/ValidarCI";
 import Navbar from "../components/Navbar";
 import Cargador from "../components/Cargador";
 import ValidateSession from "../components/ValidateSession";
+import BackgroundPage from "../components/BackgroundPage";
 
 const Registrar = () => {
   const navigate = useNavigate();
@@ -105,11 +106,28 @@ const Registrar = () => {
   return (
     <>
       <Navbar />
-      <div className="container contenido text-center">
-        <div className="row my-4">
-          <div className="col-md-12 ">
-            <h2>Registro de Usuario</h2>
-            <form onSubmit={handleSubmit} className="w-50 mx-auto">
+      <div className="flex items-center justify-center isolate bg-white px-2 py-24 sm:py-32 lg:px-4 min-h-screen">
+        <BackgroundPage />
+        <div className="flex flex-col md:flex-row w-full max-w-4xl bg-white rounded-lg shadow-lg overflow-hidden">
+          {/* Columna Izquierda */}
+          <div className="md:w-1/2 bg-gradient-to-b from-pink-500 to-purple-600 flex flex-col items-center justify-center text-white p-8">
+            <div className="mb-4">
+              <img
+                src="/logo.png" // Cambia esta URL por tu imagen
+                alt="Logo"
+                className="w-40 h-40"
+              />
+            </div>
+            <h1 className="text-3xl font-bold mb-2">Crea tu cuenta</h1>
+            <p className="text-center">Accede a todos nuestros servicios</p>
+          </div>
+
+          {/* Columna Derecha */}
+          <div className="md:w-1/2 flex flex-col justify-center p-8">
+            <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+              Iniciar sesión
+            </h2>
+            <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
               <div className="form-group">
                 <label htmlFor="identificacion">Identificación</label>
                 <br />
@@ -124,16 +142,14 @@ const Registrar = () => {
                   placeholder="Cedula / RUC"
                   pattern="[0-9]{10,13}"
                   title="Solo números del 0 al 9. Ej: 0202432143001"
-                  className={`form-control border-0 border-bottom   ${
-                    dniValido
-                      ? "border border-success"
-                      : "border border-danger text-danger"
+                  className={`w-full py-3 px-10 border  rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                    dniValido ? "border-gray-300" : "border-red-500"
                   }`}
                 />
                 {dniValido ? (
                   ""
                 ) : (
-                  <small className="text-danger">Cédula no valida</small>
+                  <small className="text-red-500">Cédula no valida</small>
                 )}
               </div>
 
@@ -147,7 +163,7 @@ const Registrar = () => {
                   value={formData.nombres}
                   onChange={handleChange}
                   required
-                  className="form-control"
+                  className="w-full py-3 px-10 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
 
@@ -161,7 +177,7 @@ const Registrar = () => {
                   value={formData.apellidos}
                   onChange={handleChange}
                   required
-                  className="form-control"
+                  className="w-full py-3 px-10 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
 
@@ -175,7 +191,7 @@ const Registrar = () => {
                   value={formData.correo}
                   onChange={handleChange}
                   required
-                  className="form-control"
+                  className="w-full py-3 px-10 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                   pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,10}$"
                   title="Ingrese un correo válido. Ej: micorreo@gmail.com"
                 />
@@ -191,28 +207,30 @@ const Registrar = () => {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="form-control"
+                  className="w-full py-3 px-10 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                   pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
                   title="Debe contener al menos un número y una letra mayúscula y minúscula, y al menos 8 o más caracteres"
                 />
               </div>
 
+              {/* Botones */}
               <button
                 type="submit"
-                className="register-btn btn btn-warning form-control"
+                className="w-full bg-purple-600 text-white py-3 rounded-lg shadow hover:bg-purple-700 transition"
               >
-                Registrar
+                Crear una cuenta
               </button>
             </form>
             <button
               onClick={handleLogin}
-              className="btn btn-info d-block w-50 my-2 mx-auto"
+              className="w-full bg-gray-100 text-gray-700 py-3 rounded-lg shadow hover:bg-gray-200 transition"
             >
               Ingresar
             </button>
           </div>
         </div>
       </div>
+
       <Footer />
     </>
   );
