@@ -269,7 +269,7 @@ const MembresiaModificar = () => {
                 type="submit"
                 className="w-full py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 transition"
               >
-                Registrar
+                Guardar
               </button>
             </form>
           </div>

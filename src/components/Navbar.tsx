@@ -31,10 +31,11 @@ function classNames(...classes) {
 interface Props {
   es_cliente?: boolean;
   es_admin?: boolean;
+  tiene_suscripcion?: boolean;
 }
 
 function Navbar(props: Props) {
-  const { es_cliente, es_admin } = props;
+  const { es_cliente, es_admin, tiene_suscripcion } = props;
   let opciones = [];
   if (es_admin) opciones = OpcionesAdmin;
   else if (es_cliente) opciones = OpcionesCliente;
@@ -72,22 +73,26 @@ function Navbar(props: Props) {
             </div>
             <div className="hidden sm:ml-6 sm:block">
               <div className="flex space-x-4">
-                {opciones.map((item) => (
-                  <a
-                    key={item.name}
-                    href={item.href}
-                    onClick={item.onClick}
-                    aria-current={item.current ? "page" : undefined}
-                    className={classNames(
-                      item.current
-                        ? "bg-gray-900 text-white"
-                        : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                      "rounded-md px-3 py-2 text-sm font-medium"
-                    )}
-                  >
-                    {item.name}
-                  </a>
-                ))}
+                {opciones.map((item) =>
+                  tiene_suscripcion && item.name == "Mi suscripción " ? (
+                    ""
+                  ) : (
+                    <a
+                      key={item.name}
+                      href={item.href}
+                      onClick={item.onClick}
+                      aria-current={item.current ? "page" : undefined}
+                      className={classNames(
+                        item.current
+                          ? "bg-gray-900 text-white"
+                          : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                        "rounded-md px-3 py-2 text-sm font-medium"
+                      )}
+                    >
+                      {item.name}
+                    </a>
+                  )
+                )}
               </div>
             </div>
           </div>
