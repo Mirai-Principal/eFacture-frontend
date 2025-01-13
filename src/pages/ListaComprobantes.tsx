@@ -1,25 +1,43 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-
-import ValidateSession from "../components/ValidateSession";
+import React, { ChangeEvent, useEffect, useState } from "react";
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  EyeIcon,
+} from "@heroicons/react/24/solid";
 import Cargador from "../components/Cargador";
-import Navbar from "../components/Navbar";
+import ValidateSession from "../components/ValidateSession";
+import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
+import Navbar from "../components/Navbar";
 import BackgroundPage from "../components/BackgroundPage";
 import Swal from "sweetalert2";
 import Config from "../components/Config";
 
-function ExtraerComprobantes() {
+interface Comprobante {
+  cod_comprobante: number;
+  cod_comprador: number;
+  clave_acceso: string;
+  razon_social: string;
+  fecha_emision: string;
+  importe_total: number;
+}
+
+interface CompradoresResponse {
+  cod_comprador: number;
+  identificacion_comprador: string;
+}
+
+function ListaComprobantes() {
   const navigate = useNavigate();
+  const [sortAscending, setSortAscending] = useState(true);
+  const [comprobantes, setComprobantes] = useState<Comprobante[]>([]);
 
   // Estado para los campos del formulario
   const [formData, setFormData] = useState({
     identificacion: "",
-    password: "",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [cargandoComprobantes, setCargandoComprobantes] = useState(false);
 
   // Función para manejar el cambio en los campos del formulario
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,6 +48,7 @@ function ExtraerComprobantes() {
     });
   };
 
+  // para manejar las fechas
   const [years, setYears] = useState<number[]>([]);
   const [months, setMonths] = useState<string[]>([]);
   const [days, setDays] = useState<(number | "Todos")[]>([]);
@@ -105,9 +124,13 @@ function ExtraerComprobantes() {
     setSelectedDay("Todos"); //?por cada cambio de mes o anio reinicia los dias
   }, [selectedYear, selectedMonth]);
 
+  //para consultar los comporadrores
+  const [compradores, setCompradores] = useState<CompradoresResponse[]>([]); // Estado para los datos formateados
+
   const { error, loading, tipoUsuario } = ValidateSession({
-    route: "validate_token",
+    route: "lista_compradores",
     method: "POST",
+    setEstado: setCompradores,
   });
 
   if (loading) {
@@ -122,6 +145,19 @@ function ExtraerComprobantes() {
 
   const token = localStorage.getItem("token");
 
+  // para ordenar la tabla
+  const handleSort = () => {
+    const sortedData = [...comprobantes].sort((a, b) => {
+      const dateA = new Date(a.fecha_emision);
+      const dateB = new Date(b.fecha_emision);
+      return sortAscending
+        ? dateA.getTime() - dateB.getTime()
+        : dateB.getTime() - dateA.getTime();
+    });
+    setSortAscending(!sortAscending);
+    setComprobantes(sortedData);
+  };
+
   // Función para manejar el envío del formulario
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -129,129 +165,59 @@ function ExtraerComprobantes() {
 
     try {
       // Enviar los datos al backend usando fetch
-      const response = await fetch(
-        `${Config.apiBaseUrl}/extraer_comprobantes`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token!,
-          },
-          body: JSON.stringify({
-            identificacion: formData.identificacion,
-            password: formData.password,
-            anio: selectedYear.toString(),
-            mes: selectedMonth.toString(),
-            dia: selectedDay.toString(),
-          }),
-        }
-      );
-
-      // Verificar si la respuesta es exitosa
-      if (!response.ok) {
-        const data = await response.json();
-        Swal.fire(data.detail || "Error al enviar los datos");
-        Swal.fire(`${data.detail}`);
-      } else {
-        const data = await response.json();
-        console.log(data);
-        if (data.message == "Se finalizo la descarga de comprobantes") {
-          Swal.fire({
-            title: data.message,
-            text: "Quieres cargar los comprobantes al sistema?",
-            icon: "success",
-            showCancelButton: true,
-            cancelButtonColor: "#d33",
-            cancelButtonText: "Cancelar",
-            confirmButtonColor: "#3085d6",
-            confirmButtonText: "Cargar comprobantes",
-          }).then((result) => {
-            if (result.isConfirmed) {
-              CargarComprobantes();
-            }
-          });
-        } else
-          Swal.fire({
-            icon: "error",
-            title: "Ocurrio un error",
-            text: data.message,
-          });
-      }
-    } catch (err) {
-      console.error("Error:", err);
-      Swal.fire(`Hubo un error al procesar la solicitud`);
-      // window.location.reload();
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // carga de comprobantes
-  const CargarComprobantes = async () => {
-    setCargandoComprobantes(true);
-    try {
-      // Enviar los datos al backend usando fetch
-      const response = await fetch(`${Config.apiBaseUrl}/cargar_comprobantes`, {
+      const response = await fetch(`${Config.apiBaseUrl}/lista_comprobantes`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: token!,
         },
+        body: JSON.stringify({
+          identificacion: formData.identificacion,
+          anio: selectedYear.toString(),
+          mes: selectedMonth.toString(),
+          dia: selectedDay.toString(),
+        }),
       });
 
       // Verificar si la respuesta es exitosa
       if (!response.ok) {
         const data = await response.json();
         Swal.fire(data.detail || "Error al enviar los datos");
-        setCargandoComprobantes(false);
       } else {
         const data = await response.json();
         console.log(data);
-        if (data.message == "Se finalizo la carga de comprobantes") {
-          Swal.fire({
-            icon: "success",
-            text: data.message,
-          });
-          navigate("/lista_comprobantes");
-        } else {
-          setCargandoComprobantes(false);
-          Swal.fire({
-            icon: "error",
-            title: "Ocurrio un error",
-            text: data.message,
-          });
-        }
+        setComprobantes(data);
       }
     } catch (err) {
       console.error("Error:", err);
       Swal.fire(`Hubo un error al procesar la solicitud`);
       window.location.reload();
     } finally {
-      setCargandoComprobantes(false);
+      setIsSubmitting(false);
     }
   };
 
+  const handleDetalle = (cod_comprobante: number) => {
+    navigate(`/detalles_comprobante/${cod_comprobante}`);
+  };
   return (
     <>
       <Navbar es_cliente={true} />
 
-      {cargandoComprobantes ? (
-        <Cargador message="Cargando comprobantes, espere un momento..." />
-      ) : null}
       {isSubmitting ? (
-        <Cargador message="Extrayendo comprobantes, espere un momento..." />
+        <Cargador message="Consultando comprobantes, espere un momento..." />
       ) : null}
 
       <div className="relative isolate bg-white px-6 py-24 sm:py-32 lg:px-4 min-h-screen">
         <BackgroundPage />
         <div className="mx-auto max-w-4xl text-center">
-          <p className="mt-2 text-balance text-5xl font-semibold tracking-tight text-gray-900 sm:text-6xl">
-            Extraer Comprobantes
+          <p className=" text-balance text-5xl font-semibold tracking-tight text-gray-900 sm:text-6xl">
+            Lista de Comprobantes
           </p>
         </div>
 
         <div className="flex items-center justify-center">
-          <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-3xl">
+          <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-5xl">
             <p className="text-gray-600 text-center mb-4">
               Ingrese los datos para la consulta:
             </p>
@@ -259,39 +225,39 @@ function ExtraerComprobantes() {
             {/* Formulario */}
             <form className="space-y-6" onSubmit={handleSubmit}>
               {/* Input principal */}
-              <div>
-                <label htmlFor="identificacion" className="block text-gray-700">
-                  Ruc/Cédula/Pasaporte
-                </label>
-                <input
-                  type="text"
-                  id="identificacion"
-                  name="identificacion"
-                  placeholder="Ingrese su Ruc/Cédula/Pasaporte"
-                  value={formData.identificacion}
-                  onChange={handleChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="password" className="block text-gray-700">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  placeholder="Ingrese la clave de su cuenta"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  required
-                />
-              </div>
-              <hr />
-              {/* Período de emisión */}
-              <div className="grid grid-cols-3 gap-4">
+
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                {/* identificacion */}
+                <div>
+                  <label
+                    htmlFor="identificacion"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    Busca o selecciona un comprador:
+                  </label>
+                  <input
+                    list="compradores-list"
+                    id="identificacion"
+                    name="identificacion"
+                    value={formData.identificacion}
+                    autoComplete="off"
+                    onChange={handleChange}
+                    required
+                    placeholder="Escribe para buscar..."
+                    pattern="[0-9]{10,13}"
+                    min={10}
+                    max={13}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                  <datalist id="compradores-list">
+                    {compradores.map((comprador) => (
+                      <option
+                        key={comprador.cod_comprador}
+                        value={comprador.identificacion_comprador}
+                      />
+                    ))}
+                  </datalist>
+                </div>
                 {/* Año */}
                 <div>
                   <label htmlFor="year" className="block text-gray-600 mb-1">
@@ -390,6 +356,69 @@ function ExtraerComprobantes() {
                 </button>
               </div>
             </form>
+            {/* Tabla */}
+            <table className="w-full table-auto border-collapse border border-gray-200 my-4">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="border px-4 py-2 text-left">
+                    Clave de acceso
+                  </th>
+                  <th className="border px-4 py-2 text-left">Razón social</th>
+                  <th className="border px-4 py-2 text-left">
+                    <div
+                      className="flex items-center cursor-pointer"
+                      onClick={handleSort}
+                    >
+                      Fecha de Emisión
+                      {sortAscending ? (
+                        <ChevronUpIcon className="w-5 h-5 ml-2" />
+                      ) : (
+                        <ChevronDownIcon className="w-5 h-5 ml-2" />
+                      )}
+                    </div>
+                  </th>
+                  <th className="border px-4 py-2 text-left">Monto</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {comprobantes.message ? (
+                  <tr>
+                    <td colSpan={5}>{comprobantes.message}</td>
+                  </tr>
+                ) : (
+                  comprobantes.map((comprobante) => (
+                    <tr
+                      key={comprobante.cod_comprobante}
+                      className="hover:bg-gray-50"
+                    >
+                      <td className="border px-4 py-2">
+                        <small>{comprobante.clave_acceso}</small>
+                      </td>
+                      <td className="border px-4 py-2">
+                        <small>{comprobante.razon_social}</small>
+                      </td>
+                      <td className="border px-4 py-2">
+                        {comprobante.fecha_emision}
+                      </td>
+                      <td className="border px-4 py-2">
+                        {comprobante.importe_total.toFixed(2)}
+                      </td>
+                      <td className="py-2 px-4 border-b text-sm text-gray-800">
+                        <a
+                          onClick={() =>
+                            handleDetalle(comprobante.cod_comprobante)
+                          }
+                          className="cursor-pointer "
+                        >
+                          <EyeIcon className="w-10 h-10 hover:scale-115" />
+                        </a>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -398,4 +427,4 @@ function ExtraerComprobantes() {
   );
 }
 
-export default ExtraerComprobantes;
+export default ListaComprobantes;

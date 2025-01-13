@@ -12,7 +12,7 @@ import Swal from "sweetalert2";
 import Config from "../../components/Config";
 
 interface CategoriasResponse {
-  cod_categoria: "";
+  cod_categoria: number;
   categoria: string;
   descripcion_categoria: string;
   cant_sueldos_basico: number;
@@ -25,7 +25,7 @@ function Categorias() {
   const token = localStorage.getItem("token");
 
   const [formData, setFormData] = useState({
-    cod_categoria: "",
+    cod_categoria: 0,
     categoria: "",
     descripcion_categoria: "",
     cant_sueldos_basico: "",

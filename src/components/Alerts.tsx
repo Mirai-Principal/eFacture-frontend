@@ -1,6 +1,10 @@
 import Swal from "sweetalert2";
 
-export const Toast = (title: string) => {
+interface ToastProps {
+  title: string;
+}
+export const Toast = (props: ToastProps) => {
+  const title = props.title;
   const ToastInstance = Swal.mixin({
     toast: true,
     position: "bottom-end",

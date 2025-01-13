@@ -5,6 +5,7 @@ import {
   CalculatorIcon,
   ChartBarIcon,
   CurrencyDollarIcon,
+  ListBulletIcon,
 } from "@heroicons/react/24/outline";
 
 import ValidateSession from "../components/ValidateSession";
@@ -22,6 +23,12 @@ const PanelCliente = () => {
       description: "Accede y descarga los comprobantes de manera eficiente.",
       icon: <DocumentTextIcon className="h-10 w-10 text-blue-600" />,
       href: "/extraer_comprobantes",
+    },
+    {
+      title: "Lista de comprobantes",
+      description: "Visualiza los comprobantes descargados y categorizalos.",
+      icon: <ListBulletIcon className="h-10 w-10 text-emerald-600" />,
+      href: "/lista_comprobantes",
     },
     {
       title: "Realizar deducción",
