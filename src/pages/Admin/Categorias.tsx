@@ -17,6 +17,7 @@ interface CategoriasResponse {
   descripcion_categoria: string;
   cant_sueldos_basico: number;
   created_at: string;
+  estado: string;
 }
 
 function Categorias() {
@@ -29,6 +30,7 @@ function Categorias() {
     categoria: "",
     descripcion_categoria: "",
     cant_sueldos_basico: "",
+    estado: "disponible",
   });
 
   const [categorias, setCategorias] = useState<CategoriasResponse[]>([]);
@@ -36,7 +38,9 @@ function Categorias() {
 
   // Función para manejar el cambio en los campos del formulario
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { id, value } = e.target;
     setFormData({
@@ -83,6 +87,7 @@ function Categorias() {
         categoria: categoria.categoria,
         descripcion_categoria: categoria.descripcion_categoria,
         cant_sueldos_basico: categoria.cant_sueldos_basico.toString(),
+        estado: categoria.estado,
       });
       setTituloForm("Editar Categoría");
     };
@@ -100,7 +105,6 @@ function Categorias() {
     console.log(error);
   }
   if (tipoUsuario && tipoUsuario != "admin") navigate("/");
-  console.log(res);
 
   return (
     <>
@@ -113,7 +117,7 @@ function Categorias() {
           </h2>
         </div>
 
-        <div className="mx-auto mt-16 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-4xl lg:grid-cols-2">
+        <div className="mx-auto mt-16 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-5xl lg:grid-cols-2">
           {/* Columna 1: Formulario */}
           <div className="bg-white p-6 rounded-lg shadow-md mx-1">
             <h2 className="text-xl font-semibold mb-4">{tituloForm}</h2>
@@ -173,6 +177,27 @@ function Categorias() {
                 />
               </div>
 
+              {/* Estado */}
+              <div className="mb-3">
+                <label
+                  className="block text-sm font-medium text-gray-700"
+                  htmlFor="estado"
+                >
+                  Estado
+                </label>
+                <select
+                  className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
+                  id="estado"
+                  name="estado"
+                  value={formData.estado}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="disponible">Disponible</option>
+                  <option value="no disponible">No Disponible</option>
+                </select>
+              </div>
+
               <button
                 type="submit"
                 className="w-full py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 transition"
@@ -197,6 +222,9 @@ function Categorias() {
                   <th className="py-2 px-4 border-b text-left text-sm font-medium text-gray-700">
                     #SBU
                   </th>
+                  <th className="py-2 px-4 border-b text-left text-sm font-medium text-gray-700">
+                    Estado
+                  </th>
                   <th></th>
                 </tr>
               </thead>
@@ -207,20 +235,36 @@ function Categorias() {
                   </tr>
                 ) : (
                   categorias.map((fila, index) => (
-                    <tr key={index} className="hover:bg-gray-50">
+                    <tr
+                      key={index}
+                      className={
+                        fila.estado == "no disponible"
+                          ? "bg-red-100"
+                          : "hover:bg-gray-100"
+                      }
+                    >
                       <td className="py-2 px-4 border-b text-sm text-gray-800">
                         {fila.categoria}
                       </td>
                       <td className="py-2 px-4 border-b text-sm text-gray-800">
-                        {fila.descripcion_categoria.slice(0, 20) + "..."}
+                        <small>
+                          {fila.descripcion_categoria.slice(0, 20) + "..."}
+                        </small>
                       </td>
                       <td className="py-2 px-4 border-b text-sm text-gray-800">
                         {fila.cant_sueldos_basico}
                       </td>
                       <td className="py-2 px-4 border-b text-sm text-gray-800">
-                        <a href="#" onClick={handleEdit(fila)}>
-                          <PencilIcon className="h-5 w-5 mr-2" />
-                        </a>
+                        {fila.estado}
+                      </td>
+                      <td className="py-2 px-4 border-b text-sm text-gray-800">
+                        {fila.categoria == "Desconocido" ? (
+                          ""
+                        ) : (
+                          <a href="#" onClick={handleEdit(fila)}>
+                            <PencilIcon className="h-5 w-5 mr-2" />
+                          </a>
+                        )}
                       </td>
                     </tr>
                   ))
