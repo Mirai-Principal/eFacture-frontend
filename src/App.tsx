@@ -18,7 +18,7 @@ import MiSuscripcion from "./pages/MiSuscripcion";
 import ExtraerComprobantes from "./pages/ExtraerComprobantes";
 import ListaComprobantes from "./pages/ListaComprobantes";
 import PeriodoFiscal from "./pages/Admin/PeriodoFiscal";
-import FraccionBasica from "./pages/FraccionBasica";
+import FraccionBasica from "./pages/Admin/FraccionBasica";
 
 const App = () => {
   return (

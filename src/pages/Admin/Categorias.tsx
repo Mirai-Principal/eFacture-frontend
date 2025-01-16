@@ -121,7 +121,7 @@ function Categorias() {
 
         <div className="mx-auto mt-10 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-10 sm:gap-y-0 lg:max-w-5xl lg:grid-cols-2">
           {/* Columna 1: Formulario */}
-          <div className="bg-white p-6 rounded-lg shadow-md mx-1">
+          <div className="bg-white p-6 rounded-lg shadow-xl mx-1  ">
             <h2 className="text-xl font-semibold mb-4">{tituloForm}</h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
@@ -212,7 +212,7 @@ function Categorias() {
           </div>
 
           {/* Columna 2: Tabla de Categorías */}
-          <div className="bg-white p-4 rounded-lg shadow-md mx-1 min-h-full">
+          <div className="bg-white p-4 rounded-lg shadow-xl mx-1 min-h-full">
             <h2 className="text-xl font-semibold mb-4">Lista de Categorías</h2>
             <table className="min-w-full table-auto border-collapse  min-h-full">
               <thead className="bg-gray-100">

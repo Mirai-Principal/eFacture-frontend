@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Cargador from "../../components/Cargador";
 import ValidateSession from "../../components/ValidateSession";
 import { useNavigate } from "react-router-dom";
@@ -19,43 +19,57 @@ interface PeriodoFiscalResponse {
   periodo_fiscal: number;
   created_at: string;
 }
-function PeriodoFiscal() {
+
+interface FraccionBasicaResponse {
+  cod_fraccion_basica: number;
+  cod_periodo_fiscal: number;
+  valor_fraccion_basica: number;
+  created_at: string;
+  periodo_fiscal: number;
+}
+function FraccionBasica() {
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
 
   const [formData, setFormData] = useState({
-    periodo_fiscal: 0,
+    cod_periodo_fiscal: "",
+    valor_fraccion_basica: "",
   });
 
   const [periodoFiscal, setPeriodoFiscal] = useState<PeriodoFiscalResponse[]>(
     []
   );
+  const [fraccionBasica, setFraccionBasica] = useState<
+    FraccionBasicaResponse[]
+  >([]);
+  const [cargarLista, setCargarLista] = useState(true);
+
   const [sortAscending, setSortAscending] = useState(true);
 
   const handleDelete =
-    (cod_periodo_fiscal: number) => async (e: React.MouseEvent) => {
+    (cod_fraccion_basica: number) => async (e: React.MouseEvent) => {
       e.preventDefault();
 
       try {
         const response = await fetch(
-          `${Config.apiBaseUrl}/periodo_fiscal_delete`,
+          `${Config.apiBaseUrl}/fraccion_basica_delete`,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
               Authorization: token!,
             },
-            body: JSON.stringify({ cod_periodo_fiscal }),
+            body: JSON.stringify({ cod_fraccion_basica }),
           }
         );
 
         const data = await response.json();
 
         if (response.ok) {
-          Toast({ title: "Periodo Fiscal eliminado" });
+          Toast({ title: "Fracción básica eliminada" });
           if (data.message) window.location.reload();
-          else setPeriodoFiscal(data);
+          else setFraccionBasica(data);
         } else {
           Swal.fire(data.detail);
           console.error("Error:", data.detail);
@@ -65,6 +79,38 @@ function PeriodoFiscal() {
         console.error("Error:", error);
       }
     };
+
+  // obtener lista de Feccion basica
+  useEffect(() => {
+    const consultarFraccionBasicaLista = async () => {
+      try {
+        const response = await fetch(
+          `${Config.apiBaseUrl}/fraccion_basica_list`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token!,
+            },
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setFraccionBasica(data);
+          setCargarLista(false);
+        } else {
+          Swal.fire(data.detail);
+          console.error("Error:", data.detail);
+        }
+      } catch (error) {
+        Swal.fire("Hubo un error: " + error);
+        console.error("Error:", error);
+      }
+    };
+    consultarFraccionBasicaLista();
+  }, [cargarLista]);
 
   // valida la sesion
   const { error, loading, tipoUsuario, res } = ValidateSession({
@@ -82,7 +128,6 @@ function PeriodoFiscal() {
   }
 
   if (tipoUsuario && tipoUsuario != "admin") navigate("/");
-  console.log(periodoFiscal);
 
   const today = new Date();
   const anioActual = today.toISOString().slice(0, 4); // Esto extrae "YYYY"
@@ -116,10 +161,11 @@ function PeriodoFiscal() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log(formData);
 
     try {
       const response = await fetch(
-        `${Config.apiBaseUrl}/periodo_fiscal_insert`,
+        `${Config.apiBaseUrl}/fraccion_basica_insert`,
         {
           method: "POST",
           headers: {
@@ -133,8 +179,14 @@ function PeriodoFiscal() {
       const data = await response.json();
 
       if (response.ok) {
-        Swal.fire(data.message);
-        window.location.reload();
+        Toast({ title: data.message });
+
+        setCargarLista(true);
+        //reset form
+        setFormData({
+          cod_periodo_fiscal: "",
+          valor_fraccion_basica: "",
+        });
       } else {
         Swal.fire(data.detail);
         console.error("Error:", data.detail);
@@ -144,7 +196,6 @@ function PeriodoFiscal() {
       console.error("Error:", error);
     }
   };
-
   return (
     <>
       <Navbar es_admin={true} />
@@ -152,14 +203,16 @@ function PeriodoFiscal() {
         <BackgroundPage />
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="text-base/7 font-semibold text-indigo-600">
-            Periodo Fiscal
+            Fracción básica desgravada IR
           </h2>
         </div>
 
         <div className="mx-auto mt-10 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-10 sm:gap-y-0 lg:max-w-5xl lg:grid-cols-2">
           {/* Columna 1: Formulario */}
           <div className="bg-white p-6 rounded-lg shadow-xl mx-1">
-            <h2 className="text-xl font-semibold mb-4">Nuevo Periodo Fiscal</h2>
+            <h2 className="text-xl font-semibold mb-4">
+              Nueva Fracción básica desgravada IR
+            </h2>
 
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
@@ -167,19 +220,52 @@ function PeriodoFiscal() {
                   htmlFor="periodo_fiscal"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Periodo Fiscal
+                  Valor Fracción básica desgravada IR
                 </label>
                 <input
                   type="number"
-                  id="periodo_fiscal"
-                  value={formData.periodo_fiscal}
-                  min={2021}
-                  max={Number(anioActual) + 1}
+                  id="valor_fraccion_basica"
+                  value={formData.valor_fraccion_basica}
+                  min={0}
+                  max={99999999.99}
+                  step={0.01}
                   onChange={handleChange}
                   tabIndex={1}
                   className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
                   required
                 />
+              </div>
+              {/* Periodo fiscal */}
+              <div className="mb-3">
+                <label
+                  className="block text-sm font-medium text-gray-700"
+                  htmlFor="cod_periodo_fiscal"
+                >
+                  Periodo Fiscal
+                </label>
+                <select
+                  className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
+                  id="cod_periodo_fiscal"
+                  name="cod_periodo_fiscal"
+                  value={formData.cod_periodo_fiscal || ""}
+                  onChange={handleChange}
+                  required
+                >
+                  <option disabled value="">
+                    Seleccionar
+                  </option>
+
+                  {res.message
+                    ? res.message
+                    : periodoFiscal.map((periodo, index) => (
+                        <option
+                          key={periodo.cod_periodo_fiscal}
+                          value={periodo.cod_periodo_fiscal}
+                        >
+                          {periodo.periodo_fiscal}
+                        </option>
+                      ))}
+                </select>
               </div>
 
               <button
@@ -211,18 +297,21 @@ function PeriodoFiscal() {
                     </div>
                   </th>
                   <th className="py-2 px-4 border-b text-left text-sm font-medium text-gray-700">
+                    Fracción básica
+                  </th>
+                  <th className="py-2 px-4 border-b text-left text-sm font-medium text-gray-700">
                     Fecha Registro
                   </th>
                   <th></th>
                 </tr>
               </thead>
               <tbody>
-                {res.message ? (
+                {fraccionBasica.message ? (
                   <tr>
-                    <td colSpan={2}>{res.message}</td>
+                    <td colSpan={4}>{fraccionBasica.message}</td>
                   </tr>
                 ) : (
-                  periodoFiscal.map((fila, index) => (
+                  fraccionBasica.map((fila, index) => (
                     <tr
                       key={index}
                       className={
@@ -235,12 +324,15 @@ function PeriodoFiscal() {
                         {fila.periodo_fiscal}
                       </td>
                       <td className="py-2 px-4 border-b text-sm text-gray-800">
-                        {fila.created_at.slice(0, 10)}
+                        {fila.valor_fraccion_basica.toFixed(2)}
+                      </td>
+                      <td className="py-2 px-4 border-b text-sm text-gray-800">
+                        {fila.created_at}
                       </td>
                       <td>
                         <a
                           href="#"
-                          onClick={handleDelete(fila.cod_periodo_fiscal)}
+                          onClick={handleDelete(fila.cod_fraccion_basica)}
                         >
                           <TrashIcon className="h-5 w-5 mr-2" />
                         </a>
@@ -258,4 +350,4 @@ function PeriodoFiscal() {
   );
 }
 
-export default PeriodoFiscal;
+export default FraccionBasica;
