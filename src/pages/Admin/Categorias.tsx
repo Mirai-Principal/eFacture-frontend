@@ -15,7 +15,7 @@ interface CategoriasResponse {
   cod_categoria: number;
   categoria: string;
   descripcion_categoria: string;
-  cant_sueldos_basico: number;
+  cant_fraccion_basica: number;
   created_at: string;
   estado: string;
 }
@@ -29,12 +29,13 @@ function Categorias() {
     cod_categoria: 0,
     categoria: "",
     descripcion_categoria: "",
-    cant_sueldos_basico: "",
+    cant_fraccion_basica: "",
     estado: "disponible",
   });
 
   const [categorias, setCategorias] = useState<CategoriasResponse[]>([]);
   const [tituloForm, setTituloForm] = useState("Nueva Categoría");
+  const [bloquearInputs, setBloquearInputs] = useState<boolean>(false);
 
   // Función para manejar el cambio en los campos del formulario
   const handleChange = (
@@ -86,10 +87,11 @@ function Categorias() {
         cod_categoria: categoria.cod_categoria,
         categoria: categoria.categoria,
         descripcion_categoria: categoria.descripcion_categoria,
-        cant_sueldos_basico: categoria.cant_sueldos_basico.toString(),
+        cant_fraccion_basica: categoria.cant_fraccion_basica.toString(),
         estado: categoria.estado,
       });
       setTituloForm("Editar Categoría");
+      setBloquearInputs(true);
     };
 
   //valida la sesion
@@ -117,7 +119,7 @@ function Categorias() {
           </h2>
         </div>
 
-        <div className="mx-auto mt-16 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-5xl lg:grid-cols-2">
+        <div className="mx-auto mt-10 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-10 sm:gap-y-0 lg:max-w-5xl lg:grid-cols-2">
           {/* Columna 1: Formulario */}
           <div className="bg-white p-6 rounded-lg shadow-md mx-1">
             <h2 className="text-xl font-semibold mb-4">{tituloForm}</h2>
@@ -135,6 +137,7 @@ function Categorias() {
                   value={formData.categoria}
                   maxLength={50}
                   onChange={handleChange}
+                  disabled={bloquearInputs}
                   className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
                   required
                 />
@@ -160,17 +163,18 @@ function Categorias() {
 
               <div className="mb-4">
                 <label
-                  htmlFor="cant_sueldos_basico"
+                  htmlFor="cant_fraccion_basica"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Cantidad de Sueldos Básicos
+                  Fracción básica desgravada
                 </label>
                 <input
                   type="number"
-                  id="cant_sueldos_basico"
-                  value={formData.cant_sueldos_basico}
-                  min={1}
-                  max={1000}
+                  id="cant_fraccion_basica"
+                  value={formData.cant_fraccion_basica}
+                  min={0}
+                  max={100}
+                  step={0.001}
                   onChange={handleChange}
                   className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
                   required
@@ -207,7 +211,7 @@ function Categorias() {
             </form>
           </div>
 
-          {/* Columna 2: Tabla de sueldos básicos */}
+          {/* Columna 2: Tabla de Categorías */}
           <div className="bg-white p-4 rounded-lg shadow-md mx-1 min-h-full">
             <h2 className="text-xl font-semibold mb-4">Lista de Categorías</h2>
             <table className="min-w-full table-auto border-collapse  min-h-full">
@@ -220,7 +224,7 @@ function Categorias() {
                     Descripción
                   </th>
                   <th className="py-2 px-4 border-b text-left text-sm font-medium text-gray-700">
-                    #SBU
+                    Cantidad Fracción básica desgravada
                   </th>
                   <th className="py-2 px-4 border-b text-left text-sm font-medium text-gray-700">
                     Estado
@@ -252,7 +256,7 @@ function Categorias() {
                         </small>
                       </td>
                       <td className="py-2 px-4 border-b text-sm text-gray-800">
-                        {fila.cant_sueldos_basico}
+                        {fila.cant_fraccion_basica}
                       </td>
                       <td className="py-2 px-4 border-b text-sm text-gray-800">
                         {fila.estado}

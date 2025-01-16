@@ -7,48 +7,70 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import Config from "../../components/Config";
 import Swal from "sweetalert2";
-import { PencilIcon } from "@heroicons/react/24/solid";
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  TrashIcon,
+} from "@heroicons/react/24/solid";
+import { Toast } from "../../components/Alerts";
 
-interface SueldoBasicoResponse {
-  valor_sueldo: number;
-  periodo_fiscal: string;
-  cod_sueldo: number;
-  estado: string;
+interface PeriodoFiscalResponse {
+  cod_periodo_fiscal: number;
+  periodo_fiscal: number;
+  created_at: string;
 }
-function ListaSueldoBasico() {
+function PeriodoFiscal() {
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
 
   const [formData, setFormData] = useState({
-    valor_sueldo: 0,
-    periodo_fiscal: "",
-    cod_sueldo: 0,
-    estado: "disponible",
+    periodo_fiscal: 0,
   });
 
-  const [sueldoBasico, setSueldoBasico] = useState<SueldoBasicoResponse[]>([]);
-  const [tituloForm, setTituloForm] = useState("Nueva Categoría");
-  const [bloquearInputs, setBloquearInputs] = useState<boolean>(false);
+  const [periodoFiscal, setPeriodoFiscal] = useState<PeriodoFiscalResponse[]>(
+    []
+  );
+  const [sortAscending, setSortAscending] = useState(true);
 
-  const handleEdit =
-    (sueldoBasico: SueldoBasicoResponse) => async (e: React.MouseEvent) => {
+  const handleDelete =
+    (cod_periodo_fiscal: number) => async (e: React.MouseEvent) => {
       e.preventDefault();
 
-      setFormData({
-        cod_sueldo: sueldoBasico.cod_sueldo,
-        estado: sueldoBasico.estado,
-        valor_sueldo: sueldoBasico.valor_sueldo,
-        periodo_fiscal: sueldoBasico.periodo_fiscal.slice(0, 7),
-      });
-      setTituloForm("Editar Categoría");
-      setBloquearInputs(true);
+      try {
+        const response = await fetch(
+          `${Config.apiBaseUrl}/periodo_fiscal_delete`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token!,
+            },
+            body: JSON.stringify({ cod_periodo_fiscal }),
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+          Toast({ title: "Periodo Fiscal eliminado" });
+          if (data.message) window.location.reload();
+          else setPeriodoFiscal(data);
+        } else {
+          Swal.fire(data.detail);
+          console.error("Error:", data.detail);
+        }
+      } catch (error) {
+        Swal.fire("Hubo un error: " + error);
+        console.error("Error:", error);
+      }
     };
+
   // valida la sesion
   const { error, loading, tipoUsuario, res } = ValidateSession({
-    route: "lista_sueldo_basico",
+    route: "periodo_fiscal_lista",
     method: "GET",
-    setEstado: setSueldoBasico,
+    setEstado: setPeriodoFiscal,
   });
 
   if (loading) {
@@ -60,15 +82,15 @@ function ListaSueldoBasico() {
   }
 
   if (tipoUsuario && tipoUsuario != "admin") navigate("/");
-  console.log(sueldoBasico);
+  console.log(periodoFiscal);
 
   const today = new Date();
-  const yearMonth = today.toISOString().slice(0, 7); // Esto extrae "YYYY-MM"
+  const anioActual = today.toISOString().slice(0, 4); // Esto extrae "YYYY"
 
   // Para obtener el siguiente año (sumando 1 año)
-  const nextYearMonth = new Date(today.setFullYear(today.getFullYear() + 1))
-    .toISOString()
-    .slice(0, 7);
+  // const nextYearMonth = new Date(today.setFullYear(today.getFullYear() + 1))
+  //   .toISOString()
+  //   .slice(0, 7);
 
   // Función para manejar el cambio en los campos del formulario
   const handleChange = (
@@ -81,25 +103,30 @@ function ListaSueldoBasico() {
     });
   };
 
+  // para ordenar la tabla
+  const handleSort = () => {
+    const sortedData = [...periodoFiscal].sort((a, b) => {
+      const valorA = a.periodo_fiscal;
+      const valorB = b.periodo_fiscal;
+      return sortAscending ? valorA - valorB : valorB - valorA;
+    });
+    setSortAscending(!sortAscending);
+    setPeriodoFiscal(sortedData);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const periodo_fiscal = formData.periodo_fiscal + "-01";
     try {
       const response = await fetch(
-        `${Config.apiBaseUrl}/sueldo_basico_insert`,
+        `${Config.apiBaseUrl}/periodo_fiscal_insert`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: token!,
           },
-          body: JSON.stringify({
-            valor_sueldo: formData.valor_sueldo,
-            periodo_fiscal,
-            estado: formData.estado,
-            cod_sueldo: formData.cod_sueldo,
-          }),
+          body: JSON.stringify(formData),
         }
       );
 
@@ -107,7 +134,6 @@ function ListaSueldoBasico() {
 
       if (response.ok) {
         Swal.fire(data.message);
-        // navigate("/sueldo_basico");
         window.location.reload();
       } else {
         Swal.fire(data.detail);
@@ -126,36 +152,16 @@ function ListaSueldoBasico() {
         <BackgroundPage />
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="text-base/7 font-semibold text-indigo-600">
-            Historial de Sueldo Básico
+            Periodo Fiscal
           </h2>
         </div>
 
-        <div className="mx-auto mt-16 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-5xl lg:grid-cols-2">
+        <div className="mx-auto mt-10 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-10 sm:gap-y-0 lg:max-w-5xl lg:grid-cols-2">
           {/* Columna 1: Formulario */}
           <div className="bg-white p-6 rounded-lg shadow-md mx-1">
-            <h2 className="text-xl font-semibold mb-4">{tituloForm}</h2>
+            <h2 className="text-xl font-semibold mb-4">Nuevo Periodo Fiscal</h2>
 
             <form onSubmit={handleSubmit}>
-              <div className="mb-4">
-                <label
-                  htmlFor="valor_sueldo"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Sueldo Básico
-                </label>
-                <input
-                  type="number"
-                  id="valor_sueldo"
-                  value={formData.valor_sueldo}
-                  min={1}
-                  max={10000}
-                  step={0.01}
-                  onChange={handleChange}
-                  disabled={bloquearInputs}
-                  className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
-                  required
-                />
-              </div>
               <div className="mb-4">
                 <label
                   htmlFor="periodo_fiscal"
@@ -164,36 +170,16 @@ function ListaSueldoBasico() {
                   Periodo Fiscal
                 </label>
                 <input
-                  type="month"
+                  type="number"
                   id="periodo_fiscal"
                   value={formData.periodo_fiscal}
-                  min={yearMonth}
-                  max={nextYearMonth}
+                  min={2021}
+                  max={Number(anioActual) + 1}
                   onChange={handleChange}
-                  disabled={bloquearInputs}
+                  tabIndex={1}
                   className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
                   required
                 />
-              </div>
-              {/* Estado */}
-              <div className="mb-3">
-                <label
-                  className="block text-sm font-medium text-gray-700"
-                  htmlFor="estado"
-                >
-                  Estado
-                </label>
-                <select
-                  className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
-                  id="estado"
-                  name="estado"
-                  value={formData.estado}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="disponible">Disponible</option>
-                  <option value="no disponible">No Disponible</option>
-                </select>
               </div>
 
               <button
@@ -205,22 +191,27 @@ function ListaSueldoBasico() {
             </form>
           </div>
 
-          {/* Columna 2: Tabla de sueldos básicos */}
+          {/* Columna 2: Tabla Periodo Fiscal */}
           <div className="bg-white p-6 rounded-lg shadow-md mx-1 min-h-full">
-            <h2 className="text-xl font-semibold mb-4">
-              Lista de Sueldos Básicos
-            </h2>
+            <h2 className="text-xl font-semibold mb-4">Lista Periodo Fiscal</h2>
             <table className="min-w-full table-auto border-collapse  min-h-full">
               <thead className="bg-gray-100">
                 <tr>
                   <th className="py-2 px-4 border-b text-left text-sm font-medium text-gray-700">
-                    Sueldo Básico
+                    <div
+                      className="flex items-center cursor-pointer"
+                      onClick={handleSort}
+                    >
+                      Periodo Fiscal
+                      {sortAscending ? (
+                        <ChevronUpIcon className="w-5 h-5 ml-2" />
+                      ) : (
+                        <ChevronDownIcon className="w-5 h-5 ml-2" />
+                      )}
+                    </div>
                   </th>
                   <th className="py-2 px-4 border-b text-left text-sm font-medium text-gray-700">
-                    Periodo Fiscal
-                  </th>
-                  <th className="py-2 px-4 border-b text-left text-sm font-medium text-gray-700">
-                    Estado
+                    Fecha Registro
                   </th>
                   <th></th>
                 </tr>
@@ -231,20 +222,27 @@ function ListaSueldoBasico() {
                     <td colSpan={2}>{res.message}</td>
                   </tr>
                 ) : (
-                  sueldoBasico.map((fila, index) => (
-                    <tr key={index} className="hover:bg-gray-50">
-                      <td className="py-2 px-4 border-b text-sm text-gray-800">
-                        {fila.valor_sueldo} USD
-                      </td>
+                  periodoFiscal.map((fila, index) => (
+                    <tr
+                      key={index}
+                      className={
+                        fila.periodo_fiscal == Number(anioActual)
+                          ? "bg-green-100"
+                          : "hover:bg-gray-100"
+                      }
+                    >
                       <td className="py-2 px-4 border-b text-sm text-gray-800">
                         {fila.periodo_fiscal}
                       </td>
                       <td className="py-2 px-4 border-b text-sm text-gray-800">
-                        {fila.estado}
+                        {fila.created_at}
                       </td>
                       <td>
-                        <a href="#" onClick={handleEdit(fila)}>
-                          <PencilIcon className="h-5 w-5 mr-2" />
+                        <a
+                          href="#"
+                          onClick={handleDelete(fila.cod_periodo_fiscal)}
+                        >
+                          <TrashIcon className="h-5 w-5 mr-2" />
                         </a>
                       </td>
                     </tr>
@@ -260,4 +258,4 @@ function ListaSueldoBasico() {
   );
 }
 
-export default ListaSueldoBasico;
+export default PeriodoFiscal;

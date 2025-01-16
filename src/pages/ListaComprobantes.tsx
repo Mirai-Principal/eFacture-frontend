@@ -12,6 +12,7 @@ import Navbar from "../components/Navbar";
 import BackgroundPage from "../components/BackgroundPage";
 import Swal from "sweetalert2";
 import Config from "../components/Config";
+import DetallesComprobante from "./DetallesComprobante";
 
 interface Comprobante {
   cod_comprobante: number;
@@ -47,6 +48,16 @@ function ListaComprobantes() {
       [name]: value,
     });
   };
+
+  // para el modal de detalles
+  const [isOpen, setIsOpen] = useState(false);
+
+  const [selectedComprobante, setSelectedComprobante] = useState<number>();
+  const toggleModalMostrar = (cod_comprobante: number) => {
+    setIsOpen(!isOpen);
+    setSelectedComprobante(cod_comprobante);
+  };
+  const toggleModal = () => setIsOpen(!isOpen);
 
   // para manejar las fechas
   const [years, setYears] = useState<number[]>([]);
@@ -197,9 +208,6 @@ function ListaComprobantes() {
     }
   };
 
-  const handleDetalle = (cod_comprobante: number) => {
-    navigate(`/detalles_comprobante/${cod_comprobante}`);
-  };
   return (
     <>
       <Navbar es_cliente={true} />
@@ -360,9 +368,7 @@ function ListaComprobantes() {
             <table className="w-full table-auto border-collapse border border-gray-200 my-4">
               <thead>
                 <tr className="bg-gray-100">
-                  <th className="border px-4 py-2 text-left">
-                    Clave de acceso
-                  </th>
+                  <th className="border px-4 py-2 text-left">RUC PROVEEDOR</th>
                   <th className="border px-4 py-2 text-left">Razón social</th>
                   <th className="border px-4 py-2 text-left">
                     <div
@@ -390,10 +396,12 @@ function ListaComprobantes() {
                   comprobantes.map((comprobante) => (
                     <tr
                       key={comprobante.cod_comprobante}
-                      className="hover:bg-gray-50"
+                      className="hover:bg-gray-100"
                     >
                       <td className="border px-4 py-2">
-                        <small>{comprobante.clave_acceso}</small>
+                        <small>
+                          {comprobante.clave_acceso.substring(10, 23)}
+                        </small>
                       </td>
                       <td className="border px-4 py-2">
                         <small>{comprobante.razon_social}</small>
@@ -405,9 +413,10 @@ function ListaComprobantes() {
                         {comprobante.importe_total.toFixed(2)}
                       </td>
                       <td className="py-2 px-4 border-b text-sm text-gray-800">
+                        {/* Botón para abrir el modal */}
                         <a
                           onClick={() =>
-                            handleDetalle(comprobante.cod_comprobante)
+                            toggleModalMostrar(comprobante.cod_comprobante)
                           }
                           className="cursor-pointer "
                         >
@@ -422,6 +431,42 @@ function ListaComprobantes() {
           </div>
         </div>
       </div>
+      {/* Modal */}
+      {isOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="relative bg-white rounded-lg shadow-xl w-full max-w-5xl">
+            {/* Header del modal */}
+            <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-700">
+                Detalles del Comprobante
+              </h2>
+              <button
+                onClick={toggleModal}
+                className="text-gray-500 hover:text-gray-700 focus:outline-none"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Contenido del modal */}
+            <div className="p-6">
+              <div className="overflow-x-auto">
+                <DetallesComprobante cod_comprobante={selectedComprobante!} />
+              </div>
+            </div>
+
+            {/* Footer del modal */}
+            <div className="flex justify-end px-6 py-4 border-t border-gray-200">
+              <button
+                onClick={toggleModal}
+                className="px-4 py-2 text-white bg-gray-600 rounded-lg hover:bg-gray-700 focus:outline-none"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <Footer />
     </>
   );

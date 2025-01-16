@@ -5,6 +5,7 @@ import {
   ClipboardIcon,
   CurrencyDollarIcon,
   TagIcon,
+  CalendarIcon,
 } from "@heroicons/react/24/outline";
 
 import ValidateSession from "../../components/ValidateSession";
@@ -55,10 +56,16 @@ const PanelAdmin = () => {
       href: "/lista_clientes",
     },
     {
-      name: "Sueldo Básico",
+      name: "Periodo Fiscal",
+      icon: CalendarIcon,
+      bgColor: "bg-cyan-500",
+      href: "/periodo_fiscal",
+    },
+    {
+      name: "Fracción básica desgravada",
       icon: CurrencyDollarIcon,
       bgColor: "bg-yellow-500",
-      href: "/sueldo_basico",
+      href: "/fraccion_basica_desgravada",
     },
   ];
   return (

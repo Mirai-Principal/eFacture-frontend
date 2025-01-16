@@ -30,7 +30,11 @@ interface CategoriasResponse {
   created_at: string;
 }
 
-function DetallesComprobante() {
+interface Props {
+  cod_comprobante: number;
+}
+
+function DetallesComprobante(props: Props) {
   const navigate = useNavigate();
 
   //para consultar los comporadrores
@@ -40,7 +44,8 @@ function DetallesComprobante() {
   const [selectedcategoria, setSelectedCategoria] = useState<number>();
   const [selectedDetalle, setSetSelectedDetalle] = useState<number>();
 
-  const { cod_comprobante } = useParams<{ cod_comprobante: string }>();
+  // const { cod_comprobante } = useParams<{ cod_comprobante: string }>();
+  const { cod_comprobante } = props;
 
   // get categorias
   const token = localStorage.getItem("token");
@@ -135,104 +140,85 @@ function DetallesComprobante() {
 
   return (
     <>
-      <Navbar es_cliente={true} />
-
       {isSubmitting ? <Cargador message="Espere un momento..." /> : null}
 
-      <div className="relative isolate bg-white px-6 py-24 sm:py-32 lg:px-4 min-h-screen">
-        <BackgroundPage />
-        <div className="mx-auto max-w-4xl text-center">
-          <p className=" text-balance text-5xl font-semibold tracking-tight text-gray-900 sm:text-6xl">
-            Detalles del Comprobante
-          </p>
-        </div>
+      <div className="mx-auto max-w-4xl text-center">
+        <p className=" text-balance text-2xl font-semibold tracking-tight text-gray-900 sm:text-2xl">
+          Asigna una categoría a los detalles del comprobante
+        </p>
+      </div>
 
-        <div className="flex items-center justify-center">
-          <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-5xl">
-            <p className="text-gray-600 text-center mb-4">
-              Ingrese los datos para la consulta:
-            </p>
-            {/* Tabla */}
-            <table className="w-full table-auto border-collapse border border-gray-200 my-4">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border px-4 py-2 text-left">Descripción</th>
-                  <th className="border px-4 py-2 text-left">Cantidad</th>
-                  <th className="border px-4 py-2 text-left">
-                    Valor sin impuesto
-                  </th>
-                  <th className="border px-4 py-2 text-left">Valor Impuesto</th>
-                  <th className="border px-4 py-2 text-left">Total</th>
-                  <th></th>
+      <div className="flex items-center justify-center">
+        <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-5xl">
+          {/* Tabla */}
+          <table className="w-full table-auto border-collapse border border-gray-200 my-4">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border px-4 py-2 text-left">Descripción</th>
+                <th className="border px-4 py-2 text-left">Cantidad</th>
+                <th className="border px-4 py-2 text-left">
+                  Valor sin impuesto
+                </th>
+                <th className="border px-4 py-2 text-left">Valor Impuesto</th>
+                <th className="border px-4 py-2 text-left">Total</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {detalles.message ? (
+                <tr>
+                  <td colSpan={5}>{detalles.message}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {detalles.message ? (
-                  <tr>
-                    <td colSpan={5}>{detalles.message}</td>
+              ) : (
+                detalles.map((detalle) => (
+                  <tr key={detalle.cod_detalle} className="hover:bg-gray-50">
+                    <td className="border px-4 py-2">
+                      <small>{detalle.descripcion}</small>
+                    </td>
+                    <td className="border px-4 py-2">
+                      <small>{detalle.cantidad}</small>
+                    </td>
+                    <td className="border px-4 py-2">
+                      {detalle.precio_total_sin_impuesto}
+                    </td>
+                    <td className="border px-4 py-2">
+                      {detalle.impuesto_valor}
+                    </td>
+                    <td className="border px-4 py-2">
+                      {detalle.detalle_valor}
+                    </td>
+                    <td className="py-2 px-4 border-b text-sm text-gray-800">
+                      <div>
+                        <select
+                          id="categoria"
+                          name="categoria"
+                          className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                          value={selectedcategoria}
+                          defaultValue={detalle.cod_categoria}
+                          onChange={(e) => {
+                            setSelectedCategoria(Number(e.target.value));
+                            setSetSelectedDetalle(detalle.cod_detalle);
+                          }}
+                          required
+                        >
+                          {categorias.map((categoria) => (
+                            <option
+                              key={categoria.cod_categoria}
+                              value={categoria.cod_categoria}
+                            >
+                              {categoria.categoria}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </td>
                   </tr>
-                ) : (
-                  detalles.map((detalle) => (
-                    <tr key={detalle.cod_detalle} className="hover:bg-gray-50">
-                      <td className="border px-4 py-2">
-                        <small>{detalle.descripcion}</small>
-                      </td>
-                      <td className="border px-4 py-2">
-                        <small>{detalle.cantidad}</small>
-                      </td>
-                      <td className="border px-4 py-2">
-                        {detalle.precio_total_sin_impuesto}
-                      </td>
-                      <td className="border px-4 py-2">
-                        {detalle.impuesto_valor}
-                      </td>
-                      <td className="border px-4 py-2">
-                        {detalle.detalle_valor}
-                      </td>
-                      <td className="py-2 px-4 border-b text-sm text-gray-800">
-                        <div>
-                          <select
-                            id="categoria"
-                            name="categoria"
-                            className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                            value={selectedcategoria}
-                            defaultValue={detalle.cod_categoria}
-                            onChange={(e) => {
-                              setSelectedCategoria(Number(e.target.value));
-                              setSetSelectedDetalle(detalle.cod_detalle);
-                            }}
-                            required
-                          >
-                            {categorias.map((categoria) => (
-                              <option
-                                key={categoria.cod_categoria}
-                                value={categoria.cod_categoria}
-                              >
-                                {categoria.categoria}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-            {/* Botones */}
-            <div className="flex justify-between">
-              <button
-                type="button"
-                onClick={() => window.history.back()}
-                className="bg-gray-200 text-gray-700 py-2 px-6 rounded-lg shadow hover:bg-gray-300 transition"
-              >
-                Anterior
-              </button>
-            </div>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
-      <Footer />
     </>
   );
 }

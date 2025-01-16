@@ -15,10 +15,10 @@ import MembresiaModificar from "./pages/Admin/MembresiaModificar";
 import Categorias from "./pages/Admin/Categorias";
 import Precios from "./pages/Precios";
 import MiSuscripcion from "./pages/MiSuscripcion";
-import ListaSueldoBasico from "./pages/Admin/ListaSueldoBasico";
 import ExtraerComprobantes from "./pages/ExtraerComprobantes";
 import ListaComprobantes from "./pages/ListaComprobantes";
-import DetallesComprobante from "./pages/DetallesComprobante";
+import PeriodoFiscal from "./pages/Admin/PeriodoFiscal";
+import FraccionBasica from "./pages/FraccionBasica";
 
 const App = () => {
   return (
@@ -41,16 +41,17 @@ const App = () => {
           path="/actualizar_membresia/:cod_membresia"
           element={<MembresiaModificar />}
         />
-        <Route path="/sueldo_basico" element={<ListaSueldoBasico />} />
+        <Route path="/periodo_fiscal" element={<PeriodoFiscal />} />
+
+        <Route
+          path="/fraccion_basica_desgravada"
+          element={<FraccionBasica />}
+        />
 
         <Route path="/categorias" element={<Categorias />} />
 
         <Route path="/extraer_comprobantes" element={<ExtraerComprobantes />} />
         <Route path="/lista_comprobantes" element={<ListaComprobantes />} />
-        <Route
-          path="/detalles_comprobante/:cod_comprobante"
-          element={<DetallesComprobante />}
-        />
       </Routes>
     </Router>
   );
