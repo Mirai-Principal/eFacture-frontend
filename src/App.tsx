@@ -19,6 +19,7 @@ import ExtraerComprobantes from "./pages/ExtraerComprobantes";
 import ListaComprobantes from "./pages/ListaComprobantes";
 import PeriodoFiscal from "./pages/Admin/PeriodoFiscal";
 import FraccionBasica from "./pages/Admin/FraccionBasica";
+import GenerarAgp from "./pages/GenerarAgp";
 
 const App = () => {
   return (
@@ -52,6 +53,8 @@ const App = () => {
 
         <Route path="/extraer_comprobantes" element={<ExtraerComprobantes />} />
         <Route path="/lista_comprobantes" element={<ListaComprobantes />} />
+
+        <Route path="/generar_agp" element={<GenerarAgp />} />
       </Routes>
     </Router>
   );

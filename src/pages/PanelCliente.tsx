@@ -31,10 +31,10 @@ const PanelCliente = () => {
       href: "/lista_comprobantes",
     },
     {
-      title: "Realizar deducción",
-      description: "Gestiona las deducciones de forma rápida y segura.",
+      title: "Realizar Anexo de gastos personales",
+      description: "Genera el documento AGP de forma rápida y segura.",
       icon: <CalculatorIcon className="h-10 w-10 text-green-600" />,
-      href: "/realizar_deduccion",
+      href: "/generar_agp",
     },
     {
       title: "Historial de deducciones",

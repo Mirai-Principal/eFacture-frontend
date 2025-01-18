@@ -80,7 +80,7 @@ function FraccionBasica() {
       }
     };
 
-  // obtener lista de Feccion basica
+  // obtener lista de Fraccion basica
   useEffect(() => {
     const consultarFraccionBasicaLista = async () => {
       try {
@@ -105,7 +105,7 @@ function FraccionBasica() {
           console.error("Error:", data.detail);
         }
       } catch (error) {
-        Swal.fire("Hubo un error: " + error);
+        // Swal.fire("Hubo un error: " + error);
         console.error("Error:", error);
       }
     };
@@ -150,13 +150,13 @@ function FraccionBasica() {
 
   // para ordenar la tabla
   const handleSort = () => {
-    const sortedData = [...periodoFiscal].sort((a, b) => {
+    const sortedData = [...fraccionBasica].sort((a, b) => {
       const valorA = a.periodo_fiscal;
       const valorB = b.periodo_fiscal;
       return sortAscending ? valorA - valorB : valorB - valorA;
     });
     setSortAscending(!sortAscending);
-    setPeriodoFiscal(sortedData);
+    setFraccionBasica(sortedData);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -279,7 +279,9 @@ function FraccionBasica() {
 
           {/* Columna 2: Tabla Periodo Fiscal */}
           <div className="bg-white p-6 rounded-lg 500 shadow-xl mx-1 min-h-full">
-            <h2 className="text-xl font-semibold mb-4">Lista Periodo Fiscal</h2>
+            <h2 className="text-xl font-semibold mb-4">
+              Lista Fracción Basica
+            </h2>
             <table className="min-w-full table-auto border-collapse  min-h-full">
               <thead className="bg-gray-100">
                 <tr>
