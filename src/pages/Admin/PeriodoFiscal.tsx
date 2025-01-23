@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Cargador from "../../components/Cargador";
 import ValidateSession from "../../components/ValidateSession";
 import { useNavigate } from "react-router-dom";
@@ -24,6 +24,7 @@ function PeriodoFiscal() {
 
   const token = localStorage.getItem("token");
 
+  // ESTADOS
   const [formData, setFormData] = useState({
     periodo_fiscal: 0,
   });
@@ -32,7 +33,45 @@ function PeriodoFiscal() {
     []
   );
   const [sortAscending, setSortAscending] = useState(true);
+  const [cargarLista, setCargarLista] = useState(true);
 
+  // PETICIONES HTTP
+
+  // obtener lista/tabla periodo fiscal
+  useEffect(() => {
+    const consultar = async () => {
+      try {
+        const response = await fetch(
+          `${Config.apiBaseUrl}/periodo_fiscal_lista`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token!,
+            },
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setPeriodoFiscal(data);
+          console.log(data);
+
+          setCargarLista(false);
+        } else {
+          Swal.fire(data.detail);
+          console.error("Error:", data.detail);
+        }
+      } catch (error) {
+        Swal.fire("Hubo un error: " + error);
+        console.error("Error:", error);
+      }
+    };
+    consultar();
+  }, [cargarLista]);
+
+  // eliminar registros
   const handleDelete =
     (cod_periodo_fiscal: number) => async (e: React.MouseEvent) => {
       e.preventDefault();
@@ -54,8 +93,9 @@ function PeriodoFiscal() {
 
         if (response.ok) {
           Toast({ title: "Periodo Fiscal eliminado" });
-          if (data.message) window.location.reload();
-          else setPeriodoFiscal(data);
+          if (data.message) {
+            window.location.reload();
+          } else setPeriodoFiscal(data);
         } else {
           Swal.fire(data.detail);
           console.error("Error:", data.detail);
@@ -113,7 +153,7 @@ function PeriodoFiscal() {
     setSortAscending(!sortAscending);
     setPeriodoFiscal(sortedData);
   };
-
+  //crear nueva entrada
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -134,7 +174,8 @@ function PeriodoFiscal() {
 
       if (response.ok) {
         Swal.fire(data.message);
-        window.location.reload();
+        setCargarLista(true);
+        setFormData({ periodo_fiscal: 0 });
       } else {
         Swal.fire(data.detail);
         console.error("Error:", data.detail);
@@ -177,6 +218,17 @@ function PeriodoFiscal() {
                   max={Number(anioActual) + 1}
                   onChange={handleChange}
                   tabIndex={1}
+                  onInvalid={(e) => {
+                    (e.target as HTMLInputElement).setCustomValidity(
+                      `El valor debe estar entre 2021 y ${
+                        Number(anioActual) + 1
+                      }.\n Por favor, inténtalo de nuevo.`
+                    );
+                  }}
+                  onInput={(e) => {
+                    // Limpia el mensaje personalizado al corregir el input
+                    (e.target as HTMLInputElement).setCustomValidity("");
+                  }}
                   className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
                   required
                 />
@@ -238,12 +290,17 @@ function PeriodoFiscal() {
                         {fila.created_at.slice(0, 10)}
                       </td>
                       <td>
-                        <a
-                          href="#"
-                          onClick={handleDelete(fila.cod_periodo_fiscal)}
-                        >
-                          <TrashIcon className="h-5 w-5 mr-2" />
-                        </a>
+                        {/* no eliminar si es dumie */}
+                        {fila.periodo_fiscal == 9999 ? (
+                          ""
+                        ) : (
+                          <a
+                            href="#"
+                            onClick={handleDelete(fila.cod_periodo_fiscal)}
+                          >
+                            <TrashIcon className="h-5 w-5 mr-2" />
+                          </a>
+                        )}
                       </td>
                     </tr>
                   ))

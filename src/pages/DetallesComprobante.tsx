@@ -32,6 +32,7 @@ interface CategoriasResponse {
 
 interface Props {
   cod_comprobante: number;
+  selectedYear: number;
 }
 
 function DetallesComprobante(props: Props) {
@@ -45,7 +46,7 @@ function DetallesComprobante(props: Props) {
   const [selectedDetalle, setSetSelectedDetalle] = useState<number>();
 
   // const { cod_comprobante } = useParams<{ cod_comprobante: string }>();
-  const { cod_comprobante } = props;
+  const { cod_comprobante, selectedYear } = props;
 
   // get categorias
   const token = localStorage.getItem("token");
@@ -55,13 +56,16 @@ function DetallesComprobante(props: Props) {
 
       try {
         // Enviar los datos al backend usando fetch
-        const response = await fetch(`${Config.apiBaseUrl}/categorias_lista`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token!,
-          },
-        });
+        const response = await fetch(
+          `${Config.apiBaseUrl}/categorias_por_anio_lista/${selectedYear}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token!,
+            },
+          }
+        );
 
         // Verificar si la respuesta es exitosa
         if (!response.ok) {

@@ -37,12 +37,6 @@ const PanelCliente = () => {
       href: "/generar_agp",
     },
     {
-      title: "Historial de deducciones",
-      description: "Consulta y analiza las deducciones realizadas.",
-      icon: <CurrencyDollarIcon className="h-10 w-10 text-yellow-500" />,
-      href: "/historial_deducciones",
-    },
-    {
       title: "Predicción de gastos",
       description: "Obtén proyecciones basadas en tus datos.",
       icon: <ChartBarIcon className="h-10 w-10 text-purple-600" />,

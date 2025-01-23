@@ -47,6 +47,8 @@ function GenerarAgp() {
   const [getDatosAgp, setGetDatosAgp] = useState(false);
   const [agpDatos, setAgpDatos] = useState<AgpDatosLista[]>([]);
   const [mostrarBtnDescargar, setMostrarBtnDescargar] = useState(false);
+  const [beneficiariaPension, setBeneficiariaPension] = useState<string>("");
+  const [valorNoAsegurado, setValorNoAsegurado] = useState<string>("");
 
   //? Función para manejar el cambio en los campos del formulario
   const handleChange = (
@@ -101,25 +103,30 @@ function GenerarAgp() {
       console.error("Error:", error);
     } finally {
       setGetDatosAgp(false);
+      setBeneficiariaPension("");
+      setValorNoAsegurado("");
     }
   };
 
   const handleGenerarAgp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    console.log(formData);
+    console.log(beneficiariaPension);
 
     try {
-      const response = await fetch(
-        `${Config.apiBaseUrl}/generar_agp/${formData.identificacion}/${formData.cod_periodo_fiscal}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token!,
-          },
-        }
-      );
+      const response = await fetch(`${Config.apiBaseUrl}/generar_agp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token!,
+        },
+        body: JSON.stringify({
+          identificacion_comprador: formData.identificacion,
+          cod_periodo_fiscal: formData.cod_periodo_fiscal,
+          beneficiariaPension,
+          valorNoAsegurado,
+        }),
+      });
 
       if (response.ok) {
         // Convertir la respuesta a un Blob
@@ -371,21 +378,82 @@ function GenerarAgp() {
               </tbody>
             </table>
             {mostrarBtnDescargar ? (
-              <button
-                type="button"
-                disabled={isSubmitting}
-                onClick={handleGenerarAgp}
-                className="flex items-center bg-blue-600 text-white py-2 px-6 rounded-lg shadow hover:bg-blue-700 transition"
-              >
-                {isSubmitting ? (
-                  <b className="my-auto">Espere... </b>
-                ) : (
-                  <>
-                    <ArrowDownTrayIcon className="w-5 h-5 mr-2" />
-                    Generar y Descargar Anexo de Gastos Personales
-                  </>
-                )}
-              </button>
+              <>
+                <form className="space-y-6" onSubmit={handleGenerarAgp}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    {/*  Beneficiaria Pensión Alimenticia */}
+                    <div>
+                      <label
+                        htmlFor="beneficiariaPension"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
+                        Beneficiaria Pensión Alimenticia:
+                      </label>
+                      <input
+                        list="compradores-list"
+                        id="beneficiariaPension"
+                        name="beneficiariaPension"
+                        value={beneficiariaPension}
+                        autoComplete="off"
+                        onChange={(
+                          e: React.ChangeEvent<
+                            HTMLInputElement | HTMLSelectElement
+                          >
+                        ) => setBeneficiariaPension(e.target.value)}
+                        placeholder="Escribe para buscar si lo tiene..."
+                        pattern="[0-9]{10,13}"
+                        min={10}
+                        max={13}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                      <datalist id="compradores-list">
+                        {compradores.map((comprador) => (
+                          <option
+                            key={comprador.cod_comprador}
+                            value={comprador.identificacion_comprador}
+                          />
+                        ))}
+                      </datalist>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="ValorNoAsegurado"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
+                        Valores No Cubierto Por Aseguradoras
+                      </label>
+                      <input
+                        type="number"
+                        id="ValorNoAsegurado"
+                        value={valorNoAsegurado || ""}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          setValorNoAsegurado(e.target.value)
+                        }
+                        min={0}
+                        max={999999}
+                        step={0.01}
+                        placeholder="Ingrese un valor si lo tiene..."
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="flex items-center bg-blue-600 text-white py-2 px-6 rounded-lg shadow hover:bg-blue-700 transition"
+                  >
+                    {isSubmitting ? (
+                      <b className="my-auto">Espere... </b>
+                    ) : (
+                      <>
+                        <ArrowDownTrayIcon className="w-5 h-5 mr-2" />
+                        Generar y Descargar Anexo de Gastos Personales
+                      </>
+                    )}
+                  </button>
+                </form>
+              </>
             ) : (
               ""
             )}

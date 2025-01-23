@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { PencilIcon } from "@heroicons/react/24/outline"; // También puedes usar '/solid'
+import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline"; // También puedes usar '/solid'
 
 import BackgroundPage from "../../components/BackgroundPage";
 import Navbar from "../../components/Navbar";
@@ -10,6 +10,7 @@ import Cargador from "../../components/Cargador";
 import ValidateSession from "../../components/ValidateSession";
 import Swal from "sweetalert2";
 import Config from "../../components/Config";
+import { Toast } from "../../components/Alerts";
 
 interface CategoriasResponse {
   cod_categoria: number;
@@ -35,9 +36,10 @@ function Categorias() {
 
   const token = localStorage.getItem("token");
 
+  //? ESTADOS
+
   const [formData, setFormData] = useState({
     cod_categoria: 0,
-    cod_fraccion_basica: "",
     categoria: "",
     descripcion_categoria: "",
     cant_fraccion_basica: "",
@@ -50,6 +52,7 @@ function Categorias() {
     FraccionBasicaResponse[]
   >([]);
   const [cargarLista, setCargarLista] = useState(true);
+  const [selectedPeriodo, setSelectedPeriodo] = useState<number | string>("");
 
   // Función para manejar el cambio en los campos del formulario
   const handleChange = (
@@ -64,39 +67,56 @@ function Categorias() {
     });
   };
 
-  // obtener lista de Fraccion basica y periodo fiscal
+  const handleSelectPeriodo = (cod_fraccion_basica: number) => {
+    setSelectedPeriodo(cod_fraccion_basica);
+    //? cambiar el valor de un campo sin alterar el resto del contenido
+    //? esto me ayudara para realizar copias de categorias a otro periodo fiscal
+    setFormData({
+      ...formData,
+      cod_categoria: 0,
+    });
+  };
+
+  //? PETICIONES HTTP
+
+  // obtener lista/tabla de categorias en base a la freccion basico y periodo
   useEffect(() => {
-    const consultarFraccionBasicaLista = async () => {
-      try {
-        const response = await fetch(`${Config.apiBaseUrl}/categorias_lista`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token!,
-          },
-        });
+    const consultar = async () => {
+      if (selectedPeriodo != "")
+        try {
+          const cod_fraccion_basica = selectedPeriodo;
+          const response = await fetch(
+            `${Config.apiBaseUrl}/categorias_por_periodo_lista/${cod_fraccion_basica}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: token!,
+              },
+            }
+          );
 
-        const data = await response.json();
+          const data = await response.json();
 
-        if (response.ok) {
-          setCategorias(data);
-          console.log(data);
-
-          setCargarLista(false);
-        } else {
-          Swal.fire(data.detail);
-          console.error("Error:", data.detail);
+          if (response.ok) {
+            setCategorias(data);
+            setCargarLista(false);
+          } else {
+            Swal.fire(data.detail);
+            console.error("Error:", data.detail);
+          }
+        } catch (error) {
+          Swal.fire("Hubo un error: " + error);
+          console.error("Error:", error);
         }
-      } catch (error) {
-        Swal.fire("Hubo un error: " + error);
-        console.error("Error:", error);
-      }
     };
-    consultarFraccionBasicaLista();
-  }, [cargarLista]);
+    consultar();
+  }, [cargarLista, selectedPeriodo]);
 
+  // registrar entrada
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log(formData);
 
     try {
       const response = await fetch(`${Config.apiBaseUrl}/categorias_insert`, {
@@ -105,14 +125,26 @@ function Categorias() {
           "Content-Type": "application/json",
           Authorization: token!,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          cod_categoria: formData.cod_categoria,
+          categoria: formData.categoria,
+          descripcion_categoria: formData.descripcion_categoria,
+          cant_fraccion_basica: formData.cant_fraccion_basica,
+          cod_fraccion_basica: selectedPeriodo,
+        }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
         Swal.fire(data.message);
-        window.location.reload();
+        // window.location.reload();
+        setFormData({
+          cod_categoria: 0,
+          categoria: "",
+          descripcion_categoria: "",
+          cant_fraccion_basica: "",
+        });
       } else {
         Swal.fire(data.detail);
         console.error("Error:", data.detail);
@@ -120,9 +152,47 @@ function Categorias() {
     } catch (error) {
       Swal.fire("Hubo un error: " + error);
       console.error("Error:", error);
+    } finally {
+      setCargarLista(true);
+      setTituloForm("Nueva Categoría");
+      setBloquearInputs(false);
     }
   };
 
+  // eliminar registros
+  const handleDelete =
+    (cod_categoria: number) => async (e: React.MouseEvent) => {
+      e.preventDefault();
+
+      try {
+        const response = await fetch(
+          `${Config.apiBaseUrl}/categoria/${cod_categoria}`,
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token!,
+            },
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+          Toast({ title: data.message });
+          setCargarLista(true);
+        } else {
+          Swal.fire(data.detail);
+          console.error("Error:", data.detail);
+        }
+      } catch (error) {
+        Swal.fire("Hubo un error: " + error);
+        console.error("Error:", error);
+        window.location.reload();
+      }
+    };
+
+  // actualizar datos
   const handleEdit =
     (categoria: CategoriasResponse) => async (e: React.MouseEvent) => {
       e.preventDefault();
@@ -132,7 +202,6 @@ function Categorias() {
         categoria: categoria.categoria,
         descripcion_categoria: categoria.descripcion_categoria,
         cant_fraccion_basica: categoria.cant_fraccion_basica.toString(),
-        cod_fraccion_basica: categoria.cod_fraccion_basica,
       });
       setTituloForm("Editar Categoría");
       setBloquearInputs(true);
@@ -163,7 +232,48 @@ function Categorias() {
           </h2>
         </div>
 
-        <div className="mx-auto mt-10 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-10 sm:gap-y-0 lg:max-w-5xl lg:grid-cols-2">
+        <div className="mx-auto mt-5 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-5 sm:gap-y-0 lg:max-w-5xl lg:grid-cols-1">
+          {/* Fraccion Basica - periodo fiscal */}
+          <div className="bg-white p-6 rounded-lg shadow-xl mx-1  ">
+            <label
+              className="block text-sm font-medium text-gray-700"
+              htmlFor="cod_fraccion_basica"
+            >
+              Periodo Fiscal - Fracción básica desgravada
+            </label>
+            <select
+              className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
+              id="cod_fraccion_basica"
+              name="cod_fraccion_basica"
+              value={selectedPeriodo}
+              onChange={(
+                e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+              ) => handleSelectPeriodo(Number(e.target.value))}
+            >
+              <option disabled value="">
+                Seleccionar
+              </option>
+
+              {res.message
+                ? res.message
+                : fraccionBasica.map((fila) =>
+                    fila.periodo_fiscal == 9999 ? (
+                      ""
+                    ) : (
+                      <option
+                        key={fila.cod_fraccion_basica}
+                        value={fila.cod_fraccion_basica}
+                      >
+                        Periodo {fila.periodo_fiscal} {" - $"}
+                        {fila.valor_fraccion_basica.toFixed(2)}
+                      </option>
+                    )
+                  )}
+            </select>
+          </div>
+        </div>
+
+        <div className="mx-auto mt-5 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-5 sm:gap-y-0 lg:max-w-5xl lg:grid-cols-2">
           {/* Columna 1: Formulario */}
           <div className="bg-white p-6 rounded-lg shadow-xl mx-1  ">
             <h2 className="text-xl font-semibold mb-4">{tituloForm}</h2>
@@ -225,42 +335,9 @@ function Categorias() {
                 />
               </div>
 
-              {/* Fraccion Basica - periodo fiscal */}
-              <div className="mb-3">
-                <label
-                  className="block text-sm font-medium text-gray-700"
-                  htmlFor="cod_fraccion_basica"
-                >
-                  Periodo Fiscal - Fracción básica desgravada
-                </label>
-                <select
-                  className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
-                  id="cod_fraccion_basica"
-                  name="cod_fraccion_basica"
-                  value={formData.cod_fraccion_basica || ""}
-                  onChange={handleChange}
-                  required
-                >
-                  <option disabled value="">
-                    Seleccionar
-                  </option>
-
-                  {res.message
-                    ? res.message
-                    : fraccionBasica.map((fila) => (
-                        <option
-                          key={fila.cod_fraccion_basica}
-                          value={fila.cod_fraccion_basica}
-                        >
-                          Periodo {fila.periodo_fiscal} {" - $"}
-                          {fila.valor_fraccion_basica.toFixed(2)}
-                        </option>
-                      ))}
-                </select>
-              </div>
-
               <button
                 type="submit"
+                disabled={selectedPeriodo ? false : true}
                 className="w-full py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 transition"
               >
                 Guardar
@@ -291,12 +368,17 @@ function Categorias() {
                       Periodo Fiscal
                     </th>
                     <th></th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {res.message ? (
+                  {categorias.length == 0 || categorias.message ? (
                     <tr>
-                      <td colSpan={3}>{res.message}</td>
+                      <td colSpan={5}>
+                        {categorias.message
+                          ? categorias.message
+                          : "Seleccionar un Periodo Fiscal"}
+                      </td>
                     </tr>
                   ) : (
                     categorias.map((fila, index) => (
@@ -323,7 +405,19 @@ function Categorias() {
                             ""
                           ) : (
                             <a href="#" onClick={handleEdit(fila)}>
-                              <PencilIcon className="h-5 w-5 mr-2" />
+                              <PencilIcon className="h-5 w-5 mr-2 hover:scale-110" />
+                            </a>
+                          )}
+                        </td>
+                        <td className="py-2 px-4 border-b text-sm text-gray-800">
+                          {fila.categoria == "Desconocido" ? (
+                            ""
+                          ) : (
+                            <a
+                              href="#"
+                              onClick={handleDelete(fila.cod_categoria)}
+                            >
+                              <TrashIcon className="h-5 w-5 mr-2 hover:scale-110" />
                             </a>
                           )}
                         </td>

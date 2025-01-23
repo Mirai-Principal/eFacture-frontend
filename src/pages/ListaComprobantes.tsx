@@ -30,6 +30,9 @@ interface CompradoresResponse {
 
 function ListaComprobantes() {
   const navigate = useNavigate();
+
+  //! ESTADOS
+
   const [sortAscending, setSortAscending] = useState(true);
   const [comprobantes, setComprobantes] = useState<Comprobante[]>([]);
 
@@ -71,6 +74,8 @@ function ListaComprobantes() {
   );
 
   const [selectedDay, setSelectedDay] = useState<number | "Todos">("Todos");
+
+  //! PETICIONES HTTP
 
   useEffect(() => {
     // Generar años desde 2021 hasta el año actual
@@ -451,7 +456,10 @@ function ListaComprobantes() {
             {/* Contenido del modal */}
             <div className="p-6">
               <div className="overflow-x-auto">
-                <DetallesComprobante cod_comprobante={selectedComprobante!} />
+                <DetallesComprobante
+                  cod_comprobante={selectedComprobante!}
+                  selectedYear={selectedYear}
+                />
               </div>
             </div>
 

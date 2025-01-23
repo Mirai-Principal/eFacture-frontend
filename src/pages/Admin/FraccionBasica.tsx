@@ -11,6 +11,7 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   TrashIcon,
+  PencilIcon,
 } from "@heroicons/react/24/solid";
 import { Toast } from "../../components/Alerts";
 
@@ -31,10 +32,12 @@ function FraccionBasica() {
   const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
-
+  //? ESTADOS
   const [formData, setFormData] = useState({
+    cod_fraccion_basica: 0,
     cod_periodo_fiscal: "",
     valor_fraccion_basica: "",
+    periodo_fiscal: 0,
   });
 
   const [periodoFiscal, setPeriodoFiscal] = useState<PeriodoFiscalResponse[]>(
@@ -44,9 +47,16 @@ function FraccionBasica() {
     FraccionBasicaResponse[]
   >([]);
   const [cargarLista, setCargarLista] = useState(true);
-
   const [sortAscending, setSortAscending] = useState(true);
+  const [cargarListaPeriodo, setCargarListaPeriodo] = useState(true);
+  const [tituloForm, setTituloForm] = useState(
+    "Nueva Fracción básica desgravada IR"
+  );
+  const [bloquearInputs, setBloquearInputs] = useState(false);
 
+  //? PETICIONES HTTP
+
+  // eliminar registros
   const handleDelete =
     (cod_fraccion_basica: number) => async (e: React.MouseEvent) => {
       e.preventDefault();
@@ -69,7 +79,10 @@ function FraccionBasica() {
         if (response.ok) {
           Toast({ title: "Fracción básica eliminada" });
           if (data.message) window.location.reload();
-          else setFraccionBasica(data);
+          else {
+            setFraccionBasica(data);
+            setCargarListaPeriodo(true);
+          }
         } else {
           Swal.fire(data.detail);
           console.error("Error:", data.detail);
@@ -112,9 +125,41 @@ function FraccionBasica() {
     consultarFraccionBasicaLista();
   }, [cargarLista]);
 
+  // obtener lista periodo fiscal
+  useEffect(() => {
+    const consultar = async () => {
+      try {
+        const response = await fetch(
+          `${Config.apiBaseUrl}/periodo_fiscal_lista_select`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token!,
+            },
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setPeriodoFiscal(data);
+          setCargarListaPeriodo(false);
+        } else {
+          Swal.fire(data.detail);
+          console.error("Error:", data.detail);
+        }
+      } catch (error) {
+        // Swal.fire("Hubo un error: " + error);
+        console.error("Error:", error);
+      }
+    };
+    consultar();
+  }, [cargarListaPeriodo]);
+
   // valida la sesion
   const { error, loading, tipoUsuario, res } = ValidateSession({
-    route: "periodo_fiscal_lista",
+    route: "periodo_fiscal_lista_select",
     method: "GET",
     setEstado: setPeriodoFiscal,
   });
@@ -161,7 +206,6 @@ function FraccionBasica() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
 
     try {
       const response = await fetch(
@@ -179,13 +223,18 @@ function FraccionBasica() {
       const data = await response.json();
 
       if (response.ok) {
-        Toast({ title: data.message });
+        console.log(data);
+
+        // Toast({ title: data.message });
 
         setCargarLista(true);
+        setCargarListaPeriodo(true);
         //reset form
         setFormData({
+          cod_fraccion_basica: 0,
           cod_periodo_fiscal: "",
           valor_fraccion_basica: "",
+          periodo_fiscal: 0,
         });
       } else {
         Swal.fire(data.detail);
@@ -194,8 +243,26 @@ function FraccionBasica() {
     } catch (error) {
       Swal.fire("Hubo un error: " + error);
       console.error("Error:", error);
+    } finally {
+      setBloquearInputs(false);
+      setTituloForm("Nueva Fracción básica desgravada IR");
     }
   };
+
+  const handleEdit =
+    (datos: FraccionBasicaResponse) => async (e: React.MouseEvent) => {
+      e.preventDefault();
+      // console.log(categoria);
+      setFormData({
+        cod_fraccion_basica: datos.cod_fraccion_basica,
+        cod_periodo_fiscal: datos.cod_periodo_fiscal,
+        valor_fraccion_basica: datos.valor_fraccion_basica,
+        periodo_fiscal: datos.periodo_fiscal,
+      });
+      setTituloForm("Editar Fracción básica desgravada IR ");
+      setBloquearInputs(true);
+    };
+
   return (
     <>
       <Navbar es_admin={true} />
@@ -210,9 +277,7 @@ function FraccionBasica() {
         <div className="mx-auto mt-10 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-10 sm:gap-y-0 lg:max-w-5xl lg:grid-cols-2">
           {/* Columna 1: Formulario */}
           <div className="bg-white p-6 rounded-lg shadow-xl mx-1">
-            <h2 className="text-xl font-semibold mb-4">
-              Nueva Fracción básica desgravada IR
-            </h2>
+            <h2 className="text-xl font-semibold mb-4">{tituloForm}</h2>
 
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
@@ -243,13 +308,18 @@ function FraccionBasica() {
                 >
                   Periodo Fiscal
                 </label>
+                <label style={bloquearInputs ? {} : { display: "none" }}>
+                  {formData.periodo_fiscal}
+                </label>
                 <select
-                  className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
+                  className="mt-1 p-2 w-full border  border-gray-300 rounded-md shadow-sm"
                   id="cod_periodo_fiscal"
                   name="cod_periodo_fiscal"
                   value={formData.cod_periodo_fiscal || ""}
                   onChange={handleChange}
                   required
+                  disabled={bloquearInputs}
+                  style={bloquearInputs ? { display: "none" } : {}}
                 >
                   <option disabled value="">
                     Seleccionar
@@ -257,14 +327,16 @@ function FraccionBasica() {
 
                   {res.message
                     ? res.message
-                    : periodoFiscal.map((periodo, index) => (
+                    : periodoFiscal.length > 0
+                    ? periodoFiscal.map((periodo, index) => (
                         <option
                           key={periodo.cod_periodo_fiscal}
                           value={periodo.cod_periodo_fiscal}
                         >
                           {periodo.periodo_fiscal}
                         </option>
-                      ))}
+                      ))
+                    : ""}
                 </select>
               </div>
 
@@ -305,6 +377,7 @@ function FraccionBasica() {
                     Fecha Registro
                   </th>
                   <th></th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -332,12 +405,25 @@ function FraccionBasica() {
                         {fila.created_at}
                       </td>
                       <td>
-                        <a
-                          href="#"
-                          onClick={handleDelete(fila.cod_fraccion_basica)}
-                        >
-                          <TrashIcon className="h-5 w-5 mr-2" />
-                        </a>
+                        {fila.periodo_fiscal == 9999 ? (
+                          ""
+                        ) : (
+                          <a href="#" onClick={handleEdit(fila)}>
+                            <PencilIcon className="h-5 w-5 mr-2" />
+                          </a>
+                        )}
+                      </td>
+                      <td>
+                        {fila.periodo_fiscal == 9999 ? (
+                          ""
+                        ) : (
+                          <a
+                            href="#"
+                            onClick={handleDelete(fila.cod_fraccion_basica)}
+                          >
+                            <TrashIcon className="h-5 w-5 mr-2" />
+                          </a>
+                        )}
                       </td>
                     </tr>
                   ))
