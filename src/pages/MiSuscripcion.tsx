@@ -16,6 +16,8 @@ interface SuscripcionDatos {
   nombre_membresia: string;
   fecha_vencimiento: string;
   order_id_paypal: string;
+  cant_comprobantes_permitidos: number;
+  cant_comprobantes_carga: number;
 }
 
 function MiSuscripcion() {
@@ -99,6 +101,13 @@ function MiSuscripcion() {
                   Válido hasta:
                 </span>{" "}
                 {suscripcion.fecha_vencimiento}
+              </p>
+              <p className="text-gray-600">
+                <span className="font-semibold text-gray-800">
+                  Comprobantes permitidos:
+                </span>{" "}
+                {suscripcion?.cant_comprobantes_permitidos} de{" "}
+                {suscripcion?.cant_comprobantes_carga}
               </p>
 
               <p className="text-gray-600">
