@@ -20,6 +20,8 @@ import ListaComprobantes from "./pages/ListaComprobantes";
 import PeriodoFiscal from "./pages/Admin/PeriodoFiscal";
 import FraccionBasica from "./pages/Admin/FraccionBasica";
 import GenerarAgp from "./pages/GenerarAgp";
+import PrediccionGastos from "./pages/PrediccionGastos";
+import GenerarEntrenameiento from "./pages/Admin/GenerarEntrenameiento";
 
 const App = () => {
   return (
@@ -55,6 +57,13 @@ const App = () => {
         <Route path="/lista_comprobantes" element={<ListaComprobantes />} />
 
         <Route path="/generar_agp" element={<GenerarAgp />} />
+
+        <Route path="/prediccion_gastos" element={<PrediccionGastos />} />
+
+        <Route
+          path="/generar_entrenamiento"
+          element={<GenerarEntrenameiento />}
+        />
       </Routes>
     </Router>
   );

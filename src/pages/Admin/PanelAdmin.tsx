@@ -6,6 +6,7 @@ import {
   CurrencyDollarIcon,
   TagIcon,
   CalendarIcon,
+  ComputerDesktopIcon,
 } from "@heroicons/react/24/outline";
 
 import ValidateSession from "../../components/ValidateSession";
@@ -66,6 +67,12 @@ const PanelAdmin = () => {
       icon: CurrencyDollarIcon,
       bgColor: "bg-yellow-500",
       href: "/fraccion_basica_desgravada",
+    },
+    {
+      name: "Generar Dataset y Entrenar",
+      icon: ComputerDesktopIcon,
+      bgColor: "bg-red-500",
+      href: "/generar_entrenamiento",
     },
   ];
   return (

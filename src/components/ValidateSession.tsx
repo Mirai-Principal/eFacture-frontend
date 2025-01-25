@@ -51,11 +51,11 @@ const ValidateSession = (props: ValidateProps) => {
 
         if (!response.ok) {
           const errorData = await response.json();
-          // console.warn("Error al validar el token:", errorData);
           console.log(errorData);
 
           Swal.fire(
-            errorData || "Sesión expirada. Por favor, inicia sesión nuevamente."
+            errorData.detail ||
+              "Sesión expirada. Por favor, inicia sesión nuevamente."
           );
           if (!errorData) {
             localStorage.removeItem("token");
@@ -83,7 +83,7 @@ const ValidateSession = (props: ValidateProps) => {
       } catch (err) {
         console.error("Error de red o servidor:", err);
         localStorage.removeItem("token");
-        Swal.fire("Sesión expirada. Por favor, inicia sesión nuevamente.");
+        Swal.fire("Sesión expirada. Por favor, inicia sesión nuevamente");
 
         navigate("/");
       } finally {

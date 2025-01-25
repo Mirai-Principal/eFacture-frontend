@@ -153,7 +153,7 @@ function DetallesComprobante(props: Props) {
       </div>
 
       <div className="flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-5xl">
+        <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-5xl  max-h-80 overflow-y-scroll">
           {/* Tabla */}
           <table className="w-full table-auto border-collapse border border-gray-200 my-4">
             <thead>
@@ -194,8 +194,8 @@ function DetallesComprobante(props: Props) {
                     <td className="py-2 px-4 border-b text-sm text-gray-800">
                       <div>
                         <select
-                          id="categoria"
-                          name="categoria"
+                          id={`categoria-${detalle.cod_detalle}`}
+                          name={`categoria-${detalle.cod_detalle}`}
                           className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
                           value={selectedcategoria}
                           defaultValue={detalle.cod_categoria}
