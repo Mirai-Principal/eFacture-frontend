@@ -14,13 +14,13 @@ const OpcionesCliente = [
   { name: "Inicio", href: "/panel_cliente", current: true },
   { name: "Precios", href: "/precios", current: false },
   { name: "Mi suscripción", href: "/mi_suscripcion", current: false },
-  { name: "Perfil", href: "#", current: false },
+  { name: "Perfil", href: "/perfil", current: false },
   { name: "Salir", href: "/", current: false, onClick: handleLogout },
 ];
 
 const OpcionesAdmin = [
   { name: "Inicio", href: "/panel_admin", current: true },
-  { name: "Perfil", href: "#", current: false },
+  { name: "Perfil", href: "/perfil", current: false },
   { name: "Salir", href: "/", current: false, onClick: handleLogout },
 ];
 

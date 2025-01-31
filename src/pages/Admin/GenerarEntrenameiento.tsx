@@ -84,16 +84,23 @@ function GenerarEntrenameiento() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 p-6 bg-white shadow-lg rounded-lg">
-          {options.map((option, index) => (
-            <div
-              key={index}
-              onClick={handleGenerarDataSet}
-              className={`flex items-center gap-4 p-4 rounded-lg cursor-pointer hover:shadow-md hover:scale-105 transition-transform duration-300 ${option.bgColor} text-white`}
-            >
-              <option.icon className="w-10 h-10" />
-              <span className="text-lg font-semibold">{option.name}</span>
-            </div>
-          ))}
+          <div>
+            <p>
+              Click para generar el dataset de datos y realizar el entramiento
+            </p>
+          </div>
+          <div>
+            {options.map((option, index) => (
+              <div
+                key={index}
+                onClick={handleGenerarDataSet}
+                className={`flex items-center gap-4 p-4 rounded-lg cursor-pointer hover:shadow-md hover:scale-105 transition-transform duration-300 ${option.bgColor} text-white`}
+              >
+                <option.icon className="w-10 h-10" />
+                <span className="text-lg font-semibold">{option.name}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
       <Footer />

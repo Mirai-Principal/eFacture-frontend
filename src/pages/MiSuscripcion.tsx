@@ -102,13 +102,37 @@ function MiSuscripcion() {
                 </span>{" "}
                 {suscripcion.fecha_vencimiento}
               </p>
-              <p className="text-gray-600">
-                <span className="font-semibold text-gray-800">
-                  Comprobantes permitidos:
-                </span>{" "}
-                {suscripcion?.cant_comprobantes_permitidos} de{" "}
-                {suscripcion?.cant_comprobantes_carga}
-              </p>
+
+              <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md my-5">
+                <div className="mb-4">
+                  <label
+                    htmlFor="range"
+                    className="block text-gray-700 font-bold mb-2"
+                  >
+                    Comprobantes permitidos:{" "}
+                    {suscripcion?.cant_comprobantes_permitidos}
+                  </label>
+                  <input
+                    type="range"
+                    id="range"
+                    className="w-full accent-indigo-600"
+                    min="0"
+                    max={suscripcion?.cant_comprobantes_carga}
+                    value={suscripcion?.cant_comprobantes_permitidos}
+                  />
+                </div>
+                {/* Muestra el valor actual encima del slider */}
+                <div className="text-center text-indigo-700 font-semibold mt-2"></div>
+                <div className="flex justify-between text-gray-500">
+                  <span id="minPrice">0</span>
+                  <span className="text-indigo-700">
+                    {suscripcion?.cant_comprobantes_permitidos}
+                  </span>
+                  <span id="maxPrice">
+                    {suscripcion?.cant_comprobantes_carga}
+                  </span>
+                </div>
+              </div>
 
               <p className="text-gray-600">
                 <span className="font-semibold text-gray-800">

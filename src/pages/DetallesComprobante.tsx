@@ -42,14 +42,13 @@ function DetallesComprobante(props: Props) {
   const [detalles, setDetalles] = useState<DetallesResponse[]>([]); // Estado para los datos formateados
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categorias, setCategorias] = useState<CategoriasResponse[]>([]);
-  const [selectedcategoria, setSelectedCategoria] = useState<number>();
-  const [selectedDetalle, setSetSelectedDetalle] = useState<number>();
 
   // const { cod_comprobante } = useParams<{ cod_comprobante: string }>();
   const { cod_comprobante, selectedYear } = props;
 
   // get categorias
   const token = localStorage.getItem("token");
+
   useEffect(() => {
     (async () => {
       setIsSubmitting(true);
@@ -86,44 +85,57 @@ function DetallesComprobante(props: Props) {
   }, []);
 
   // para actualizar la categoria
-  useEffect(() => {
-    if (selectedcategoria) {
-      (async () => {
-        setIsSubmitting(true);
+  const handleChangeCategoria =
+    (cod_detalle: number) =>
+    async (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setIsSubmitting(true);
 
-        try {
-          // Enviar los datos al backend usando fetch
-          const response = await fetch(`${Config.apiBaseUrl}/detalles_update`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: token!,
-            },
-            body: JSON.stringify({
-              cod_detalle: selectedDetalle,
-              cod_categoria: selectedcategoria,
-            }),
-          });
+      const cod_categoria = Number(e.target.value);
 
-          // Verificar si la respuesta es exitosa
-          if (!response.ok) {
-            const data = await response.json();
-            Swal.fire(data.detail || "Error al enviar los datos");
-          } else {
-            const data = await response.json();
-            console.log(data);
-            Toast({ title: "Categoría asignada" });
-          }
-        } catch (err) {
-          console.error("Error:", err);
-          Swal.fire(`Hubo un error al procesar la solicitud`);
-          // window.location.reload();
-        } finally {
-          setIsSubmitting(false);
+      try {
+        // Enviar los datos al backend usando fetch
+        const response = await fetch(`${Config.apiBaseUrl}/detalles_update`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token!,
+          },
+          body: JSON.stringify({
+            cod_detalle,
+            cod_categoria,
+          }),
+        });
+
+        // Verificar si la respuesta es exitosa
+        const data = await response.json();
+
+        if (response.ok) {
+          Toast({ title: data.message });
+
+          //? actualiza el estado de la categoria
+          setDetalles((prevDetalles) =>
+            prevDetalles.map((detalle) =>
+              detalle.cod_detalle === cod_detalle
+                ? { ...detalle, cod_categoria: cod_categoria }
+                : detalle
+            )
+          );
+        } else {
+          Swal.fire(data.detail || "Error al enviar los datos");
         }
-      })();
-    }
-  }, [selectedcategoria, selectedDetalle]);
+
+        // Guardar token para futuras solicitudes
+        const new_token = response.headers.get("Authorization");
+        localStorage.removeItem("token");
+        localStorage.setItem("token", new_token!);
+      } catch (err) {
+        console.error("Error:", err);
+        Swal.fire(`Hubo un error al procesar la solicitud`);
+        // window.location.reload();
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
 
   // listar detalles
   const { error, loading, tipoUsuario } = ValidateSession({
@@ -197,12 +209,8 @@ function DetallesComprobante(props: Props) {
                           id={`categoria-${detalle.cod_detalle}`}
                           name={`categoria-${detalle.cod_detalle}`}
                           className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                          value={selectedcategoria}
-                          defaultValue={detalle.cod_categoria}
-                          onChange={(e) => {
-                            setSelectedCategoria(Number(e.target.value));
-                            setSetSelectedDetalle(detalle.cod_detalle);
-                          }}
+                          value={detalle.cod_categoria}
+                          onChange={handleChangeCategoria(detalle.cod_detalle)}
                           required
                         >
                           {categorias.map((categoria) => (

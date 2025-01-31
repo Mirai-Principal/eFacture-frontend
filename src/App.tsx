@@ -22,6 +22,9 @@ import FraccionBasica from "./pages/Admin/FraccionBasica";
 import GenerarAgp from "./pages/GenerarAgp";
 import PrediccionGastos from "./pages/PrediccionGastos";
 import GenerarEntrenameiento from "./pages/Admin/GenerarEntrenameiento";
+import Configuracion from "./pages/Admin/Configuracion";
+import ClientesLista from "./pages/Admin/ClientesLista";
+import Perfil from "./pages/Perfil";
 
 const App = () => {
   return (
@@ -64,6 +67,9 @@ const App = () => {
           path="/generar_entrenamiento"
           element={<GenerarEntrenameiento />}
         />
+        <Route path="/configuracion_lista" element={<Configuracion />} />
+        <Route path="/clientes_lista" element={<ClientesLista />} />
+        <Route path="/perfil" element={<Perfil />} />
       </Routes>
     </Router>
   );

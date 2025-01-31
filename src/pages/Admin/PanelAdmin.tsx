@@ -7,6 +7,7 @@ import {
   TagIcon,
   CalendarIcon,
   ComputerDesktopIcon,
+  WrenchScrewdriverIcon,
 } from "@heroicons/react/24/outline";
 
 import ValidateSession from "../../components/ValidateSession";
@@ -54,7 +55,7 @@ const PanelAdmin = () => {
       name: "Listar Clientes Registrados",
       icon: UsersIcon,
       bgColor: "bg-purple-500",
-      href: "/lista_clientes",
+      href: "/clientes_lista",
     },
     {
       name: "Periodo Fiscal",
@@ -73,6 +74,12 @@ const PanelAdmin = () => {
       icon: ComputerDesktopIcon,
       bgColor: "bg-red-500",
       href: "/generar_entrenamiento",
+    },
+    {
+      name: "Configuración de la aplicación",
+      icon: WrenchScrewdriverIcon,
+      bgColor: "bg-slate-500",
+      href: "/configuracion_lista",
     },
   ];
   return (

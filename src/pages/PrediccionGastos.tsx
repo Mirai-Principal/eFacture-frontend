@@ -19,6 +19,16 @@ interface CategoriasResponse {
   categoria: string;
 }
 
+const backgroundColor = [
+  "rgb(255, 99, 132)", // Rojo
+  "rgb(54, 162, 235)", // Azul
+  "rgb(255, 205, 86)", // Amarillo
+  "rgb(75, 192, 192)", // Verde agua
+  "rgb(153, 102, 255)", // Morado
+  "rgb(255, 159, 64)", // Naranja
+  "rgb(201, 203, 207)", // Gris claro
+];
+
 function PrediccionGastos() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -79,7 +89,7 @@ function PrediccionGastos() {
         label: "Histórico de Gastos",
         data: datosHistoricoCat,
         borderColor: "rgba(75, 192, 192, 1)",
-        backgroundColor: "rgba(75, 192, 192, 0.2)",
+        backgroundColor: backgroundColor,
       },
     ],
   };
@@ -91,7 +101,7 @@ function PrediccionGastos() {
         label: "Predicción de Gastos",
         data: datosCat,
         borderColor: "rgba(75, 192, 192, 1)",
-        backgroundColor: "rgba(75, 192, 192, 0.2)",
+        backgroundColor: backgroundColor,
       },
     ],
   };
@@ -368,10 +378,12 @@ function PrediccionGastos() {
             <Chart type="line" data={dataPrediccion} />
           </div>
           <div className="bg-white p-6 rounded-lg shadow-xl m-1  ">
-            <Chart type="doughnut" data={dataHistoricoCategorico} />
+            <p>Categórico histórico</p>
+            <Chart type="pie" data={dataHistoricoCategorico} />
           </div>
           <div className="bg-white p-6 rounded-lg shadow-xl m-1  ">
-            <Chart type="doughnut" data={dataPrediccionCategorico} />
+            <p>Categórico predicción</p>
+            <Chart type="pie" data={dataPrediccionCategorico} />
           </div>
         </div>
       </div>
