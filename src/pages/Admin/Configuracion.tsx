@@ -4,8 +4,10 @@ import Cargador from "../../components/Cargador";
 import Footer from "../../components/Footer";
 import Navbar from "../../components/Navbar";
 import ValidateSession from "../../components/ValidateSession";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PencilIcon } from "@heroicons/react/24/outline";
+import Config from "../../components/Config";
+import Swal from "sweetalert2";
 
 interface ConfiguracionLista {
   cod_regla: number;
@@ -20,44 +22,162 @@ interface ConfiguracionLista {
 
 function Configuracion() {
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
   //?   ESTADOS
   const [condiguracionRes, setConfiguracionRes] = useState<
     ConfiguracionLista[]
   >([]);
-
-  const [selectedConfig, setSelectedConfig] = useState<number>();
+  const [cargarLista, setCargarLista] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [isOpen, setIsOpen] = useState(false);
   const toggleModal = () => setIsOpen(!isOpen);
-  const toggleModalMostrar = (cod_regla: number) => {
-    setIsOpen(!isOpen);
-    setSelectedConfig(cod_regla);
-  };
 
   // Estado para los campos del formulario
   const [formData, setFormData] = useState({
+    cod_regla: 0,
     nombre: "",
     descripcion: "",
+    campo: "",
     operador: "",
     valor: "",
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // console.log("Datos del formulario:", formData);
+  //? PETICIONES HTTP
+
+  const toggleModalMostrar = async (cod_regla: number) => {
+    setIsOpen(!isOpen);
+
+    setIsSubmitting(true);
+
+    try {
+      // Enviar los datos al backend usando fetch
+      const response = await fetch(
+        `${Config.apiBaseUrl}/configuracion/${cod_regla}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token!,
+          },
+        }
+      );
+
+      // Verificar si la respuesta es exitosa
+      const data = await response.json();
+
+      if (response.ok) {
+        setFormData(data);
+      } else {
+        Swal.fire(data.detail || "Error al enviar los datos");
+      }
+
+      // Guardar token para futuras solicitudes
+      const new_token = response.headers.get("Authorization");
+      localStorage.removeItem("token");
+      localStorage.setItem("token", new_token!);
+    } catch (err) {
+      console.error("Error:", err);
+      Swal.fire(`Hubo un error al procesar la solicitud`);
+      // window.location.reload();
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      // Enviar los datos al backend usando fetch
+      const response = await fetch(`${Config.apiBaseUrl}/configuracion`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token!,
+        },
+        body: JSON.stringify(formData),
+      });
+
+      // Verificar si la respuesta es exitosa
+      const data = await response.json();
+
+      if (response.ok) {
+        Swal.fire(data.message);
+        toggleModal();
+        setCargarLista(true);
+      } else {
+        Swal.fire(data.detail || "Error al enviar los datos");
+      }
+
+      // Guardar token para futuras solicitudes
+      const new_token = response.headers.get("Authorization");
+      localStorage.removeItem("token");
+      localStorage.setItem("token", new_token!);
+    } catch (err) {
+      console.error("Error:", err);
+      Swal.fire(`Hubo un error al procesar la solicitud`);
+      // window.location.reload();
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  useEffect(() => {
+    setIsSubmitting(true);
+
+    const consultar = async () => {
+      try {
+        const response = await fetch(
+          `${Config.apiBaseUrl}/configuracion_lista`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: token!,
+            },
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setConfiguracionRes(data);
+          setCargarLista(false);
+        } else {
+          Swal.fire(data.detail);
+          console.error("Error:", data.detail);
+        }
+      } catch (error) {
+        Swal.fire("Hubo un error: " + error);
+        console.error("Error:", error);
+      } finally {
+        setIsSubmitting(false);
+        setFormData({
+          cod_regla: 0,
+          nombre: "",
+          descripcion: "",
+          campo: "",
+          operador: "",
+          valor: "",
+        });
+      }
+    };
+    consultar();
+  }, [cargarLista]);
+
   // Función para manejar el cambio en los campos del formulario
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { id, value } = e.target;
     setFormData({
       ...formData,
       [id]: value,
     });
   };
-
-  //? PETCIONES HTTP
 
   //valida la sesion
   const { error, loading, tipoUsuario, res } = ValidateSession({
@@ -73,11 +193,10 @@ function Configuracion() {
   }
   if (tipoUsuario && tipoUsuario != "admin") navigate("/");
 
-  console.log(condiguracionRes);
-
   return (
     <>
       <Navbar es_admin={true} />
+      {isSubmitting ? <Cargador message="Espere un momento..." /> : null}
       <div className="relative isolate bg-white px-6 py-24 sm:py-32 lg:px-4 min-h-screen">
         <BackgroundPage />
         <div className="mx-auto max-w-4xl text-center">
@@ -91,9 +210,6 @@ function Configuracion() {
               <table className="min-w-full table-auto border-collapse  min-h-full">
                 <thead className="bg-gray-100">
                   <tr>
-                    <th className="py-2 px-4 border-b text-left text-sm font-medium text-gray-700">
-                      id
-                    </th>
                     <th className="py-2 px-4 border-b text-left text-sm font-medium text-gray-700">
                       Nombre
                     </th>
@@ -125,10 +241,7 @@ function Configuracion() {
                     condiguracionRes.map((config, index) => (
                       <tr key={index} className={"hover:bg-gray-100"}>
                         <td className="py-2 px-4 border-b text-sm text-gray-800">
-                          <small>{config.cod_regla}</small>
-                        </td>
-                        <td className="py-2 px-4 border-b text-sm text-gray-800">
-                          <small>{config.nombre.slice(0, 20) + "..."}</small>
+                          <small>{config.nombre}</small>
                         </td>
                         <td className="py-2 px-4 border-b text-sm text-gray-800">
                           <small>{config.descripcion}</small>
@@ -174,7 +287,7 @@ function Configuracion() {
               </h2>
               <button
                 onClick={toggleModal}
-                className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                className="text-gray-500 hover:text-gray-700 hover:scale-125 focus:outline-none"
               >
                 ✕
               </button>
@@ -183,72 +296,76 @@ function Configuracion() {
             {/* Contenido del modal */}
             <div className="p-6">
               <div className="overflow-y-auto max-h-96">
-                <form onSubmit={handleSubmit} className="space-y-4 px-5">
+                <form onSubmit={handleSubmit} className="space-y-4 px-5 ">
                   {/* Nombre */}
-                  <div>
-                    <label className="block text-gray-700">Nombre</label>
-                    <input
-                      type="text"
-                      name="nombre"
-                      value={formData.nombre}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
-                      placeholder="Ingrese el nombre"
-                    />
-                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-gray-700">Nombre</label>
+                      <input
+                        type="text"
+                        id="nombre"
+                        value={formData.nombre}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+                        placeholder="Ingrese el nombre"
+                      />
+                    </div>
 
+                    {/* Campo (Solo lectura) */}
+                    <div>
+                      <label className="block text-gray-700">Campo</label>
+                      <input
+                        type="text"
+                        id="campo"
+                        value={formData.campo}
+                        readOnly
+                        className="w-full px-3 py-2 border bg-gray-100 rounded-md text-gray-500"
+                      />
+                    </div>
+
+                    {/* Operador */}
+                    <div>
+                      <label className="block text-gray-700">Operador</label>
+                      <select
+                        id="operador"
+                        value={formData.operador}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+                      >
+                        <option value="" disabled>
+                          Seleccione un operador
+                        </option>
+                        <option value="==">==</option>
+                        <option value=">">{">"}</option>
+                        <option value=">=">{">="}</option>
+                        <option value="<">{"<"}</option>
+                        <option value="<=">{"<="}</option>
+                      </select>
+                    </div>
+
+                    {/* Valor */}
+                    <div>
+                      <label className="block text-gray-700">Valor</label>
+                      <input
+                        type="text"
+                        id="valor"
+                        value={formData.valor}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+                        placeholder="Ingrese un valor"
+                      />
+                    </div>
+                  </div>
                   {/* Descripción */}
                   <div>
                     <label className="block text-gray-700">Descripción</label>
                     <input
                       type="text"
-                      name="descripcion"
+                      id="descripcion"
                       value={formData.descripcion}
                       onChange={handleChange}
                       className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
                       placeholder="Ingrese la descripción"
-                    />
-                  </div>
-
-                  {/* Campo (Solo lectura) */}
-                  <div>
-                    <label className="block text-gray-700">Campo</label>
-                    <input
-                      type="text"
-                      name="campo"
-                      value="No modificable"
-                      readOnly
-                      className="w-full px-3 py-2 border bg-gray-100 rounded-md text-gray-500"
-                    />
-                  </div>
-
-                  {/* Operador */}
-                  <div>
-                    <label className="block text-gray-700">Operador</label>
-                    <select
-                      name="operador"
-                      value={formData.operador}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
-                    >
-                      <option value="">Seleccione un operador</option>
-                      <option value="+">+</option>
-                      <option value="-">-</option>
-                      <option value="*">*</option>
-                      <option value="/">/</option>
-                    </select>
-                  </div>
-
-                  {/* Valor */}
-                  <div>
-                    <label className="block text-gray-700">Valor</label>
-                    <input
-                      type="text"
-                      name="valor"
-                      value={formData.valor}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
-                      placeholder="Ingrese un valor"
                     />
                   </div>
 
@@ -261,16 +378,6 @@ function Configuracion() {
                   </button>
                 </form>
               </div>
-            </div>
-
-            {/* Footer del modal */}
-            <div className="flex justify-end px-6 py-4 border-t border-gray-200">
-              <button
-                onClick={toggleModal}
-                className="px-4 py-2 text-white bg-gray-600 rounded-lg hover:bg-gray-700 focus:outline-none"
-              >
-                Cerrar
-              </button>
             </div>
           </div>
         </div>
