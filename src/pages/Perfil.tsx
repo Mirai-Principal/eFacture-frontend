@@ -189,7 +189,14 @@ function Perfil() {
                     />
                   </div>
 
-                  <div className="sm:col-span-2 flex justify-end">
+                  <div className="sm:col-span-2 flex justify-between">
+                    <button
+                      type="button"
+                      onClick={() => window.history.back()}
+                      className="bg-gray-200 text-gray-700 py-2 px-6 rounded-lg shadow hover:bg-gray-300 transition"
+                    >
+                      Anterior
+                    </button>
                     <button
                       type="submit"
                       disabled={isSubmitting}

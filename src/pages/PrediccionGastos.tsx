@@ -29,11 +29,32 @@ const backgroundColor = [
   "rgb(201, 203, 207)", // Gris claro
 ];
 
+const months = [
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Septiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre",
+];
+
+interface DatosPrediccionMensual {
+  anio: number;
+  monto: number;
+}
+
 function PrediccionGastos() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
   //? ESTADOS
+  const [selectedMonth, setSelectedMonth] = useState(0); // Enero por defecto
 
   //prediccion
   const [etiquetas, setEtiquetas] = useState<string[]>([]);
@@ -41,12 +62,6 @@ function PrediccionGastos() {
   const [etiquetasHistorico, setEtiquetasHistorico] = useState<string[]>([]);
   const [datosHistorico, setDatosHistorico] = useState<number[]>([]);
   //historico
-  const [etiquetasCat, setEtiquetasCat] = useState<string[]>([]);
-  const [datosCat, setDatosCat] = useState<number[]>([]);
-  const [etiquetasHistoricoCat, setEtiquetasHistoricoCat] = useState<string[]>(
-    []
-  );
-  const [datosHistoricoCat, setDatosHistoricoCat] = useState<number[]>([]);
 
   const [isSubmitting, setIsSubmitting] = useState(false); //estado de carga
   const [categorias, setCategorias] = useState<CategoriasResponse[]>([]);
@@ -55,6 +70,11 @@ function PrediccionGastos() {
     usuario: "",
     categoria: "",
   });
+
+  const [activarSlider, setActivarSlider] = useState(true);
+  const [datosMensual, setdatosMensual] = useState<DatosPrediccionMensual[]>(
+    []
+  );
 
   //! GRAFICO ESTADISITCO
   //? mensual
@@ -82,24 +102,12 @@ function PrediccionGastos() {
   };
 
   //? categorico
-  const dataHistoricoCategorico = {
-    labels: etiquetasHistoricoCat,
+  const dataMensual = {
+    labels: datosMensual?.map((fila) => fila.anio) || [],
     datasets: [
       {
         label: "Histórico de Gastos",
-        data: datosHistoricoCat,
-        borderColor: "rgba(75, 192, 192, 1)",
-        backgroundColor: backgroundColor,
-      },
-    ],
-  };
-
-  const dataPrediccionCategorico = {
-    labels: etiquetasCat,
-    datasets: [
-      {
-        label: "Predicción de Gastos",
-        data: datosCat,
+        data: datosMensual?.map((fila) => fila.monto) || [],
         borderColor: "rgba(75, 192, 192, 1)",
         backgroundColor: backgroundColor,
       },
@@ -145,6 +153,48 @@ function PrediccionGastos() {
     })();
   }, []);
 
+  const handleChangeSlider = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    let mes = parseInt(event.target.value);
+    setSelectedMonth(mes);
+    setIsSubmitting(true);
+    const categoria = formData.categoria;
+    mes += 1;
+
+    try {
+      // Enviar los datos al backend usando fetch
+      const response = await fetch(
+        `${Config.apiBaseUrl}/consultar_categorico_mensual/${categoria}/${mes}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token!,
+          },
+        }
+      );
+
+      // Verificar si la respuesta es exitosa
+      const data = await response.json();
+
+      if (response.ok) {
+        setdatosMensual(data);
+        console.log(data);
+      } else {
+        console.log(data);
+
+        Swal.fire(data.detail || "Error al enviar los datos");
+      }
+    } catch (err) {
+      console.error("Error:", err);
+      // Swal.fire(`Hubo un error al procesar la solicitud`);
+      // window.location.reload();
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   //? Función para manejar el cambio en los campos del formulario
   const handleChange = (
     e: React.ChangeEvent<
@@ -162,6 +212,8 @@ function PrediccionGastos() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    setdatosMensual([]);
 
     const categoria = formData.categoria;
     const usuario = formData.usuario;
@@ -189,30 +241,6 @@ function PrediccionGastos() {
         }
       }
     );
-
-    await consultarDatos("consultar_prediccion_categorico", usuario).then(
-      (data) => {
-        if (data.message) {
-          setEtiquetasHistorico([]);
-          setDatosHistorico([]);
-        } else {
-          setEtiquetasCat(data.map((fila) => fila.categoria));
-          setDatosCat(data.map((fila) => fila.monto));
-        }
-      }
-    );
-
-    await consultarDatos("consultar_historico_categorico", usuario).then(
-      (data) => {
-        if (data.message) {
-          setEtiquetasHistorico([]);
-          setDatosHistorico([]);
-        } else {
-          setEtiquetasHistoricoCat(data.map((fila) => fila.categoria));
-          setDatosHistoricoCat(data.map((fila) => fila.monto));
-        }
-      }
-    );
   };
 
   const consultarDatos = async (
@@ -235,6 +263,11 @@ function PrediccionGastos() {
       const data = await response.json();
 
       if (response.ok) {
+        setActivarSlider(false);
+
+        const new_token = response.headers.get("Authorization");
+        localStorage.removeItem("token");
+        localStorage.setItem("token", new_token!);
         return data;
       } else {
         Swal.fire(data.detail);
@@ -377,13 +410,35 @@ function PrediccionGastos() {
           <div className="bg-white p-6 rounded-lg shadow-xl m-1  ">
             <Chart type="line" data={dataPrediccion} />
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-xl m-1  ">
-            <p>Categórico histórico</p>
-            <Chart type="pie" data={dataHistoricoCategorico} />
+        </div>
+        <div className="bg-white rounded-lg shadow-xl mx-auto mt-5 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-5 sm:gap-y-0 lg:max-w-5xl lg:grid-cols-1">
+          <div className="  p-6 w-full my-5">
+            <label className="block text-gray-700 font-bold mb-2">
+              Seleccionar Mes
+            </label>
+
+            <input
+              type="range"
+              min="0"
+              max="11"
+              step="1"
+              value={selectedMonth}
+              onChange={(e) => {
+                handleChangeSlider(e);
+              }}
+              disabled={activarSlider}
+              className="w-full accent-indigo-600"
+            />
+
+            <div className="flex justify-between text-gray-500 mt-2">
+              <span className="text-xs text-center w-full">
+                {months[selectedMonth]}
+              </span>
+            </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-xl m-1  ">
-            <p>Categórico predicción</p>
-            <Chart type="pie" data={dataPrediccionCategorico} />
+          <div className=" p-6  m-1 text-center ">
+            <p>Meses por año</p>
+            <Chart type="bar" data={dataMensual} className="w-10/12 mx-auto" />
           </div>
         </div>
       </div>

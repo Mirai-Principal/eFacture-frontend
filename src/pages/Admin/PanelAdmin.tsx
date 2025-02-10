@@ -6,7 +6,6 @@ import {
   CurrencyDollarIcon,
   TagIcon,
   CalendarIcon,
-  ComputerDesktopIcon,
   WrenchScrewdriverIcon,
 } from "@heroicons/react/24/outline";
 
@@ -58,7 +57,7 @@ const PanelAdmin = () => {
       href: "/clientes_lista",
     },
     {
-      name: "Periodo Fiscal",
+      name: "Gestionar Periodo Fiscal",
       icon: CalendarIcon,
       bgColor: "bg-cyan-500",
       href: "/periodo_fiscal",
@@ -68,12 +67,6 @@ const PanelAdmin = () => {
       icon: CurrencyDollarIcon,
       bgColor: "bg-yellow-500",
       href: "/fraccion_basica_desgravada",
-    },
-    {
-      name: "Generar Dataset y Entrenar",
-      icon: ComputerDesktopIcon,
-      bgColor: "bg-red-500",
-      href: "/generar_entrenamiento",
     },
     {
       name: "Configuración de la aplicación",

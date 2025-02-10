@@ -18,6 +18,7 @@ const Login = () => {
     correo: "",
     password: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Función para manejar el cambio en los campos del formulario
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,6 +61,7 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     // console.log(formData);
+    setIsSubmitting(true);
 
     try {
       const response = await fetch(`${Config.apiBaseUrl}/login`, {
@@ -93,6 +95,8 @@ const Login = () => {
       console.log(err);
 
       Swal.fire(`Error de red`);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -103,8 +107,7 @@ const Login = () => {
   return (
     <>
       <Navbar />
-
-      <Navbar />
+      {isSubmitting ? <Cargador message="Espere un momento..." /> : null}
       <div className="flex items-center justify-center isolate bg-white px-2 py-24 sm:py-32 lg:px-4 min-h-screen">
         <BackgroundPage />
         <div className="flex flex-col md:flex-row w-full max-w-4xl bg-white rounded-lg shadow-lg overflow-hidden">

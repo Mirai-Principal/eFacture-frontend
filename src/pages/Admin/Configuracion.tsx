@@ -5,7 +5,12 @@ import Footer from "../../components/Footer";
 import Navbar from "../../components/Navbar";
 import ValidateSession from "../../components/ValidateSession";
 import { useEffect, useState } from "react";
-import { PencilIcon } from "@heroicons/react/24/outline";
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  ComputerDesktopIcon,
+  PencilIcon,
+} from "@heroicons/react/24/outline";
 import Config from "../../components/Config";
 import Swal from "sweetalert2";
 
@@ -20,12 +25,21 @@ interface ConfiguracionLista {
   updated_at: string;
 }
 
+const options = [
+  {
+    name: "Generar Dataset y Entrenar",
+    icon: ComputerDesktopIcon,
+    bgColor: "bg-red-500",
+    href: "#",
+  },
+];
+
 function Configuracion() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
   //?   ESTADOS
-  const [condiguracionRes, setConfiguracionRes] = useState<
+  const [configuracionRes, setConfiguracionRes] = useState<
     ConfiguracionLista[]
   >([]);
   const [cargarLista, setCargarLista] = useState(false);
@@ -43,6 +57,36 @@ function Configuracion() {
     operador: "",
     valor: "",
   });
+  const [sortAscending, setSortAscending] = useState(true);
+
+  // para ordenar la tabla
+  const handleSortDates = () => {
+    const sortedData = [...configuracionRes].sort((a, b) => {
+      const dateA = new Date(a.updated_at.slice(0, 10));
+      const dateB = new Date(b.updated_at.slice(0, 10));
+      return sortAscending
+        ? dateA.getTime() - dateB.getTime()
+        : dateB.getTime() - dateA.getTime();
+    });
+
+    setSortAscending(!sortAscending);
+    setConfiguracionRes(sortedData);
+  };
+
+  // para ordenar la tabla
+  const handleSortString = () => {
+    const sortedData = [...configuracionRes].sort((a, b) => {
+      const nameA = a.campo.toLowerCase();
+      const nameB = b.campo.toLowerCase();
+
+      return sortAscending
+        ? nameA.localeCompare(nameB)
+        : nameB.localeCompare(nameA);
+    });
+
+    setSortAscending(!sortAscending);
+    setConfiguracionRes(sortedData);
+  };
 
   //? PETICIONES HTTP
 
@@ -179,6 +223,42 @@ function Configuracion() {
     });
   };
 
+  const handleGenerarDataSet = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(`${Config.apiBaseUrl}/generar_dataset`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token!,
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Swal.fire(data.message);
+        // Guardar token para futuras solicitudes
+        const new_token = response.headers.get("Authorization");
+        localStorage.removeItem("token");
+        localStorage.setItem("token", new_token!);
+      } else {
+        Swal.fire(data.detail);
+        console.error("Error:", data.detail);
+      }
+    } catch (error) {
+      Swal.fire("Hubo un error: " + error);
+      console.error("Error:", error);
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   //valida la sesion
   const { error, loading, tipoUsuario, res } = ValidateSession({
     route: "configuracion_lista",
@@ -204,8 +284,29 @@ function Configuracion() {
             Configuración del sistema
           </h2>
         </div>
+
         <div className="mx-auto mt-5 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-5 sm:gap-y-0 lg:max-w-5xl sm:max-w-5xl lg:grid-cols-1">
           <div className="bg-white p-6 rounded-lg shadow-xl mx-1  ">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 p-6 bg-white shadow-lg rounded-lg">
+              <div className="my-auto">
+                <p>
+                  Click para generar el dataset de datos y realizar el
+                  entramiento
+                </p>
+              </div>
+              <div>
+                {options.map((option, index) => (
+                  <div
+                    key={index}
+                    onClick={handleGenerarDataSet}
+                    className={`flex items-center gap-4 p-4 rounded-lg cursor-pointer hover:shadow-md hover:scale-105 transition-transform duration-300 ${option.bgColor} text-white`}
+                  >
+                    <option.icon className="w-10 h-10" />
+                    <span className="text-lg font-semibold">{option.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
             <div className="overflow-x-auto">
               <table className="min-w-full table-auto border-collapse  min-h-full">
                 <thead className="bg-gray-100">
@@ -218,7 +319,17 @@ function Configuracion() {
                       Descripción
                     </th>
                     <th className="py-2 px-4 border-b text-left text-sm font-medium text-gray-700">
-                      Campo
+                      <div
+                        className="flex items-center cursor-pointer"
+                        onClick={handleSortString}
+                      >
+                        Campo
+                        {sortAscending ? (
+                          <ChevronUpIcon className="w-5 h-5 ml-2" />
+                        ) : (
+                          <ChevronDownIcon className="w-5 h-5 ml-2" />
+                        )}
+                      </div>
                     </th>
                     <th className="py-2 px-4 border-b text-left text-sm font-medium text-gray-700">
                       Operador
@@ -228,6 +339,17 @@ function Configuracion() {
                     </th>
                     <th className="py-2 px-4 border-b text-left text-sm font-medium text-gray-700">
                       Modificado el
+                      {/* <div
+                        className="flex items-center cursor-pointer"
+                        onClick={handleSortDates}
+                      >
+                        Modificado el
+                        {sortAscending ? (
+                          <ChevronUpIcon className="w-5 h-5 ml-2" />
+                        ) : (
+                          <ChevronDownIcon className="w-5 h-5 ml-2" />
+                        )}
+                      </div> */}
                     </th>
                     <th></th>
                   </tr>
@@ -238,7 +360,7 @@ function Configuracion() {
                       <td colSpan={5}>{res.message}</td>
                     </tr>
                   ) : (
-                    condiguracionRes.map((config, index) => (
+                    configuracionRes.map((config, index) => (
                       <tr key={index} className={"hover:bg-gray-100"}>
                         <td className="py-2 px-4 border-b text-sm text-gray-800">
                           <small>{config.nombre}</small>

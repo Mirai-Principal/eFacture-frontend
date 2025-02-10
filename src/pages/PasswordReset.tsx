@@ -106,7 +106,7 @@ function PasswordReset() {
             <h1 className="text-3xl font-bold mb-2">Recupera tu cuenta</h1>
             <p className="text-center">
               Se te enviará un correo a tu dirección en caso de que estes
-              resgitrado
+              registrado
             </p>
           </div>
 

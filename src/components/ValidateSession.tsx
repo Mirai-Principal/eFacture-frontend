@@ -85,7 +85,8 @@ const ValidateSession = (props: ValidateProps) => {
         localStorage.removeItem("token");
         Swal.fire("Sesión expirada. Por favor, inicia sesión nuevamente");
 
-        navigate("/");
+        // navigate("/");
+        window.location.reload();
       } finally {
         setLoading(false);
       }

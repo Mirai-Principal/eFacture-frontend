@@ -200,6 +200,13 @@ function CambiarPassword() {
                 Cambiar Contraseña
               </button>
             </form>
+            <button
+              type="button"
+              onClick={() => window.history.back()}
+              className="bg-gray-200 text-gray-700 py-2 px-6 rounded-lg shadow hover:bg-gray-300 transition"
+            >
+              Anterior
+            </button>
           </div>
         </div>
       </div>

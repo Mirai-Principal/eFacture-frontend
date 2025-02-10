@@ -47,7 +47,7 @@ function ClientesLista() {
         <BackgroundPage />
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="text-base/7 font-semibold text-indigo-600">
-            Categorias de comprobante electrónicos
+            Lista de clientes registrados
           </h2>
         </div>
 
