@@ -55,7 +55,7 @@ const ValidateSession = (props: ValidateProps) => {
 
           Swal.fire(
             errorData.detail ||
-              "Sesión expirada. Por favor, inicia sesión nuevamente."
+            "Sesión expirada. Por favor, inicia sesión nuevamente."
           );
           if (!errorData) {
             localStorage.removeItem("token");

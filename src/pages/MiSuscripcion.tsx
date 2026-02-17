@@ -5,6 +5,7 @@ import Cargador from "../components/Cargador";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import BackgroundPage from "../components/BackgroundPage";
+import { FaceFrownIcon, ArrowLongLeftIcon } from "@heroicons/react/24/outline";
 
 interface SuscripcionDatos {
   caracteristicas: string;
@@ -55,7 +56,14 @@ function MiSuscripcion() {
           </p>
         </div>
         {res.message ? (
-          <p>{res.message}</p>
+          <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
+            <p className="text-center py-4">{res.message}</p>
+            <FaceFrownIcon className=" mx-auto text-gray-400" style={{ width: "100px", height: "100px" }} />
+            <a href="/" className="bg-gray-200 text-gray-700 py-2 px-6 rounded-lg shadow hover:bg-gray-300 transition flex items-center gap-2">
+              <ArrowLongLeftIcon className="w-5 h-5" />
+              Volver al inicio
+            </a>
+          </div>
         ) : (
           <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
             <div className="border-t border-gray-200 mt-4 pt-4">
