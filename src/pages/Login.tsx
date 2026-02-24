@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { Activity, useState } from "react";
 import { UserIcon, LockClosedIcon } from "@heroicons/react/24/outline";
 
 import Footer from "../components/Footer";
@@ -107,7 +107,13 @@ const Login = () => {
   return (
     <>
       <Navbar />
-      {isSubmitting ? <Cargador message="Espere un momento..." /> : null}
+      {/* {isSubmitting && <Cargador message="Espere un momento..." />} */} {/* se desmonta, pierde esatdo, efectos, conexiones y se recrea todo */}
+      {/* no se desmosntra, pausa el render, efectos y se conserva los estados
+      reduce el consumo de recursos al evitar recrear
+      util para tabs, modales, SPAs, nnimaciones */}
+      <Activity mode={isSubmitting ? "visible" : "hidden"}>
+        <Cargador message="Espere un momento..." />
+      </Activity>
       <div className="flex items-center justify-center isolate bg-white px-2 py-24 sm:py-32 lg:px-4 min-h-screen">
         <BackgroundPage />
         <div className="flex flex-col md:flex-row w-full max-w-4xl bg-white rounded-lg shadow-lg overflow-hidden">
