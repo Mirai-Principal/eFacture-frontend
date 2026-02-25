@@ -1,4 +1,4 @@
-import React, { FocusEvent, MouseEvent, useState } from "react";
+import React, { FocusEvent, useState } from "react";
 import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -34,7 +34,7 @@ const Registrar = () => {
   };
 
   const [dniValido, setDniValido] = useState(true);
-  const handleBlur = (e: FocusEvent) => {
+  const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
     const dni = e.target.value;
     if (dni == "") setDniValido(true);
     else setDniValido(ValidarCI(dni));
@@ -81,11 +81,11 @@ const Registrar = () => {
         if (!response.ok) {
           const data = await response.json();
           setError(data.detail || "Error al registrar el usuario");
-          console.log(data);
+          console.log(error);
 
-          Swal.fire(`${data.detail}`);
+          Swal.fire(`${error}`);
         } else {
-          const data = await response.json();
+          // const data = await response.json();
           Swal.fire(`Usuario registrado con éxito`);
           // console.log("Usuario registrado con éxito", data);
           // Aquí puedes redirigir a una página de éxito o login
@@ -96,6 +96,7 @@ const Registrar = () => {
         Swal.fire(`${err}`);
 
         setError("Hubo un error al procesar la solicitud");
+        console.log(error);
       }
   };
 
@@ -142,9 +143,8 @@ const Registrar = () => {
                   placeholder="Cedula / RUC"
                   pattern="[0-9]{10,13}"
                   title="Solo números del 0 al 9. Ej: 0202432143001"
-                  className={`w-full py-3 px-10 border  rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                    dniValido ? "border-gray-300" : "border-red-500"
-                  }`}
+                  className={`w-full py-3 px-10 border  rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 ${dniValido ? "border-gray-300" : "border-red-500"
+                    }`}
                 />
                 {dniValido ? (
                   ""

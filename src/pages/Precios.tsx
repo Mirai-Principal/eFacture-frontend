@@ -222,6 +222,10 @@ export default function Precios() {
                       });
                     }}
                     onApprove={(data, actions) => {
+                      if (!actions.order) {
+                        Swal.fire("Error", "No se pudo procesar el pago", "error");
+                        throw new Error("Order actions not available");
+                      }
                       return actions.order.capture().then((details) => {
                         // console.log("Pago aprobado:", details);
 

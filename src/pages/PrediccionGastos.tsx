@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "chart.js/auto";
 import { Chart } from "react-chartjs-2";
 import Navbar from "../components/Navbar";
@@ -224,8 +224,8 @@ function PrediccionGastos() {
           setEtiquetas([]);
           setDatos([]);
         } else {
-          setEtiquetas(data.map((fila) => fila.fecha.slice(0, 7)));
-          setDatos(data.map((fila) => fila.monto));
+          setEtiquetas(data.map((fila: any) => fila.fecha.slice(0, 7)));
+          setDatos(data.map((fila: any) => fila.monto));
         }
       }
     );
@@ -236,8 +236,8 @@ function PrediccionGastos() {
           setEtiquetasHistorico([]);
           setDatosHistorico([]);
         } else {
-          setEtiquetasHistorico(data.map((fila) => fila.anio_mes.slice(0, 7)));
-          setDatosHistorico(data.map((fila) => fila.monto));
+          setEtiquetasHistorico(data.map((fila: any) => fila.anio_mes.slice(0, 7)));
+          setDatosHistorico(data.map((fila: any) => fila.monto));
         }
       }
     );
@@ -284,7 +284,7 @@ function PrediccionGastos() {
   //valida la sesion
   const [compradores, setCompradores] = useState<CompradoresResponse[]>([]); // Estado para los datos formateados
 
-  const { error, loading, tipoUsuario, res } = ValidateSession({
+  const { error, loading, tipoUsuario } = ValidateSession({
     route: "lista_compradores",
     method: "POST",
     setEstado: setCompradores,
