@@ -84,9 +84,9 @@ function ClientesLista() {
                   </tr>
                 </thead>
                 <tbody>
-                  {res.message ? (
+                  {(res as any)?.message ? (
                     <tr>
-                      <td colSpan={5}>{res.message}</td>
+                      <td colSpan={5}>{(res as any).message}</td>
                     </tr>
                   ) : (
                     clientes.map((cliente, index) => (

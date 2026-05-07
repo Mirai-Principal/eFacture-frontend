@@ -255,8 +255,8 @@ function FraccionBasica() {
       // console.log(categoria);
       setFormData({
         cod_fraccion_basica: datos.cod_fraccion_basica,
-        cod_periodo_fiscal: datos.cod_periodo_fiscal,
-        valor_fraccion_basica: datos.valor_fraccion_basica,
+        cod_periodo_fiscal: String(datos.cod_periodo_fiscal),
+        valor_fraccion_basica: String(datos.valor_fraccion_basica),
         periodo_fiscal: datos.periodo_fiscal,
       });
       setTituloForm("Editar Fracción básica desgravada IR ");
@@ -325,10 +325,10 @@ function FraccionBasica() {
                     Seleccionar
                   </option>
 
-                  {res.message
-                    ? res.message
+                  {(res as any)?.message
+                    ? (res as any).message
                     : periodoFiscal.length > 0
-                    ? periodoFiscal.map((periodo, index) => (
+                    ? periodoFiscal.map((periodo) => (
                         <option
                           key={periodo.cod_periodo_fiscal}
                           value={periodo.cod_periodo_fiscal}
@@ -381,12 +381,12 @@ function FraccionBasica() {
                 </tr>
               </thead>
               <tbody>
-                {fraccionBasica.message ? (
+                {!Array.isArray(fraccionBasica) && (fraccionBasica as any).message ? (
                   <tr>
-                    <td colSpan={4}>{fraccionBasica.message}</td>
+                    <td colSpan={4}>{(fraccionBasica as any).message}</td>
                   </tr>
                 ) : (
-                  fraccionBasica.map((fila, index) => (
+                  Array.isArray(fraccionBasica) && fraccionBasica.map((fila, index) => (
                     <tr
                       key={index}
                       className={

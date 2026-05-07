@@ -4,7 +4,6 @@ import {
   DocumentTextIcon,
   CalculatorIcon,
   ChartBarIcon,
-  CurrencyDollarIcon,
   ListBulletIcon,
 } from "@heroicons/react/24/outline";
 

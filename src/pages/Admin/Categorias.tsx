@@ -254,8 +254,8 @@ function Categorias() {
                 Seleccionar
               </option>
 
-              {res.message
-                ? res.message
+              {(res as any)?.message
+                ? (res as any).message
                 : fraccionBasica.map((fila) =>
                     fila.periodo_fiscal == 9999 ? (
                       ""
@@ -372,12 +372,10 @@ function Categorias() {
                   </tr>
                 </thead>
                 <tbody>
-                  {categorias.length == 0 || categorias.message ? (
+                  {(!Array.isArray(categorias) && (categorias as any).message) || (Array.isArray(categorias) && categorias.length == 0) ? (
                     <tr>
                       <td colSpan={5}>
-                        {categorias.message
-                          ? categorias.message
-                          : "Seleccionar un Periodo Fiscal"}
+                        {!Array.isArray(categorias) ? (categorias as any).message : "Seleccionar un Periodo Fiscal"}
                       </td>
                     </tr>
                   ) : (

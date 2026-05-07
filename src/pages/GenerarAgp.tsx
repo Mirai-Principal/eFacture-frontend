@@ -341,13 +341,13 @@ function GenerarAgp() {
                 </tr>
               </thead>
               <tbody>
-                {agpDatos.message ? (
+                {!Array.isArray(agpDatos) && (agpDatos as any).message ? (
                   <tr>
-                    <td colSpan={5}>{detalles.message}</td>
+                    <td colSpan={5}>{(agpDatos as any).message}</td>
                   </tr>
                 ) : (
                   <>
-                    {agpDatos.map((fila, index) => (
+                    {Array.isArray(agpDatos) && agpDatos.map((fila, index) => (
                       <tr key={index} className="hover:bg-gray-100">
                         <td className="border px-4 py-2">
                           <small>{fila.ruc_proveedor}</small>

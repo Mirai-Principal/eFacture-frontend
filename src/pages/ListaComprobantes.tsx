@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -393,12 +393,12 @@ function ListaComprobantes() {
                 </tr>
               </thead>
               <tbody>
-                {comprobantes.message ? (
+                {!Array.isArray(comprobantes) && (comprobantes as any).message ? (
                   <tr>
-                    <td colSpan={5}>{comprobantes.message}</td>
+                    <td colSpan={5}>{(comprobantes as any).message}</td>
                   </tr>
                 ) : (
-                  comprobantes.map((comprobante) => (
+                  Array.isArray(comprobantes) && comprobantes.map((comprobante) => (
                     <tr
                       key={comprobante.cod_comprobante}
                       className="hover:bg-gray-100"

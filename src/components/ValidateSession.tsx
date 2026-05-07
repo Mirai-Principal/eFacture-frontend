@@ -72,7 +72,7 @@ const ValidateSession = (props: ValidateProps) => {
         setRes(data);
 
         // asigna el resultado al estado de donde lo invoco
-        if (!data.message) setEstado(data);
+        if (setEstado && data && !data.message) setEstado(data);
 
         // Guardar token para futuras solicitudes
         const new_token = response.headers.get("Authorization");

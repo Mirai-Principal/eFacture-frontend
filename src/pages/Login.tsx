@@ -50,13 +50,6 @@ const Login = () => {
     else navigate("/");
   }
 
-  // Crear un controlador de aborto
-  const controller = new AbortController();
-  // const signal = controller.signal;
-  // Crear un temporizador para abortar la solicitud después de `timeout` ms
-  // const timeoutId = setTimeout(() => {
-  //   controller.abort(); // Cancela el fetch
-  // }, 10000);
   // Función para manejar el envío del formulario
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,11 +72,9 @@ const Login = () => {
 
       if (response.ok) {
         const token = response.headers.get("Authorization");
-        const sub = response.headers.get("sub");
 
-        localStorage.setItem("token", token); // Guardar token para futuras solicitudes
+        if (token) localStorage.setItem("token", token); // Guardar token para futuras solicitudes
         // console.log(data);
-        // clearTimeout(timeoutId); // Limpiar el temporizador si la solicitud es exitosa
 
         // Swal.fire(`Autenticación exitosa`);
         if (data.tipo_usuario == "admin") navigate("/panel_admin");

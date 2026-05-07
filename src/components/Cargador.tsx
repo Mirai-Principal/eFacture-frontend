@@ -1,5 +1,3 @@
-import React from "react";
-
 interface LoaderProps {
   message?: string; // Mensaje opcional para mostrar junto al spinner
 }

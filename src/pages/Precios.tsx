@@ -11,7 +11,7 @@ import Config from "../components/Config";
 import Swal from "sweetalert2";
 import BackgroundPage from "../components/BackgroundPage";
 
-function classNames(...classes) {
+function classNames(...classes: (string | undefined | null | false)[]): string {
   return classes.filter(Boolean).join(" ");
 }
 
@@ -23,7 +23,9 @@ interface Membresia {
   fecha_lanzamiento: string;
   descripcion_membresia: string;
   caracteristicas: string;
+  featured?: boolean;
 }
+
 interface PagoPayPal {
   cod_membresia: string;
   precio: number;
@@ -35,7 +37,7 @@ export default function Precios() {
   const [membresias, setMembresias] = useState<Membresia[]>([]);
 
   const initialOptions = {
-    "client-id": Config.clientIDPayPal,
+    clientId: Config.clientIDPayPal,
     currency: "USD",
     "data-page-type": "product-details",
     components: "buttons",
@@ -112,10 +114,10 @@ export default function Precios() {
         </div>
 
         <div className="mx-auto mt-16 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-4xl lg:grid-cols-3">
-          {res.detail ? (
-            <p> {res.detail}</p>
+          {(res as any)?.detail ? (
+            <p> {(res as any).detail}</p>
           ) : (
-            membresias.map((tier, tierIdx) => (
+            membresias.map((tier) => (
               <div
                 key={tier.cod_membresia}
                 className={classNames(
@@ -190,8 +192,8 @@ export default function Precios() {
                       label: "buynow",
                     }}
                     key={tier.cod_membresia}
-                    createOrder={(data, actions) => {
-                      return actions.order.create({
+                    createOrder={(actions) => {
+                      return (actions as any).order.create({
                         purchase_units: [
                           {
                             amount: {

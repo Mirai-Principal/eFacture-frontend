@@ -10,7 +10,14 @@ const handleLogout = () => {
   localStorage.removeItem("token");
 };
 
-const OpcionesCliente = [
+interface MenuItem {
+  name: string;
+  href: string;
+  current: boolean;
+  onClick?: () => void;
+}
+
+const OpcionesCliente: MenuItem[] = [
   { name: "Inicio", href: "/panel_cliente", current: true },
   { name: "Precios", href: "/precios", current: false },
   { name: "Mi suscripción", href: "/mi_suscripcion", current: false },
@@ -18,13 +25,13 @@ const OpcionesCliente = [
   { name: "Salir", href: "/", current: false, onClick: handleLogout },
 ];
 
-const OpcionesAdmin = [
+const OpcionesAdmin: MenuItem[] = [
   { name: "Inicio", href: "/panel_admin", current: true },
   { name: "Perfil", href: "/perfil", current: false },
   { name: "Salir", href: "/", current: false, onClick: handleLogout },
 ];
 
-function classNames(...classes) {
+function classNames(...classes: (string | undefined | null | false)[]): string {
   return classes.filter(Boolean).join(" ");
 }
 
@@ -36,7 +43,7 @@ interface Props {
 
 function Navbar(props: Props) {
   const { es_cliente, es_admin, tiene_suscripcion } = props;
-  let opciones = [];
+  let opciones: MenuItem[] = [];
   if (es_admin) opciones = OpcionesAdmin;
   else if (es_cliente) opciones = OpcionesCliente;
 

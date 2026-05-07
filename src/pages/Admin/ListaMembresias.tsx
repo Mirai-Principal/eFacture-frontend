@@ -88,9 +88,9 @@ function ListaMembresias() {
                 </tr>
               </thead>
               <tbody id="lista_membresias">
-                {res!.message ? (
+                {(res as any)?.message ? (
                   <tr>
-                    <td colSpan={5}>{res.message}</td>
+                    <td colSpan={5}>{(res as any).message}</td>
                   </tr>
                 ) : (
                   membresias.map((item, index) => (

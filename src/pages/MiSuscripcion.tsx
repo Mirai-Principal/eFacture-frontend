@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import ValidateSession from "../components/ValidateSession";
 import { useNavigate } from "react-router-dom";
 import Cargador from "../components/Cargador";
@@ -55,9 +55,9 @@ function MiSuscripcion() {
             Detalles de tu Suscripción
           </p>
         </div>
-        {res.message ? (
+        {(res as any)?.message ? (
           <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
-            <p className="text-center py-4">{res.message}</p>
+            <p className="text-center py-4">{(res as any).message}</p>
             <FaceFrownIcon className=" mx-auto text-gray-400" style={{ width: "100px", height: "100px" }} />
             <a href="/" className="bg-gray-200 text-gray-700 py-2 px-6 rounded-lg shadow hover:bg-gray-300 transition flex items-center gap-2">
               <ArrowLongLeftIcon className="w-5 h-5" />
@@ -71,13 +71,13 @@ function MiSuscripcion() {
                 <span className="font-semibold text-gray-800">
                   Nombre de la Membresía:
                 </span>{" "}
-                {suscripcion.nombre_membresia}
+                {suscripcion?.nombre_membresia}
               </p>
               <p className="text-gray-600">
                 <span className="font-semibold text-gray-800">
                   Descripción:
                 </span>{" "}
-                {suscripcion.descripcion_membresia}
+                {suscripcion?.descripcion_membresia}
               </p>
               <p className="text-gray-600">
                 <span className="font-semibold text-gray-800">
@@ -85,8 +85,8 @@ function MiSuscripcion() {
                 </span>
               </p>
               <ul className="list-disc list-inside ml-6 text-gray-600">
-                {suscripcion.caracteristicas
-                  .split("\n")
+                {suscripcion?.caracteristicas
+                  ?.split("\n")
                   .map((feature, index) => (
                     <li key={index}>{feature}</li>
                   ))}
@@ -96,19 +96,19 @@ function MiSuscripcion() {
             <div className="border-t border-gray-200 mt-4 pt-4">
               <p className="text-gray-600">
                 <span className="font-semibold text-gray-800">Estado:</span>{" "}
-                {suscripcion.estado_membresia}
+                {suscripcion?.estado_membresia}
               </p>
               <p className="text-gray-600">
                 <span className="font-semibold text-gray-800">
                   Fecha de Compra:
                 </span>{" "}
-                {suscripcion.fecha_compra}
+                {suscripcion?.fecha_compra}
               </p>
               <p className="text-gray-600">
                 <span className="font-semibold text-gray-800">
                   Válido hasta:
                 </span>{" "}
-                {suscripcion.fecha_vencimiento}
+                {suscripcion?.fecha_vencimiento}
               </p>
 
               <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md my-5">
@@ -146,7 +146,7 @@ function MiSuscripcion() {
                 <span className="font-semibold text-gray-800">
                   ID de la Orden PayPal:
                 </span>{" "}
-                {suscripcion.order_id_paypal}
+                {suscripcion?.order_id_paypal}
               </p>
             </div>
           </div>

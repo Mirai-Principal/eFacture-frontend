@@ -24,16 +24,8 @@ function Perfil() {
 
   //? ESTADOS
 
-  const [formData, setFormData] = useState<Usuario>([]);
+  const [formData, setFormData] = useState<Usuario>({} as Usuario);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // para el modal de detalles
-  const [isOpen, setIsOpen] = useState(false);
-
-  const toggleModalMostrar = (cod_comprobante: number) => {
-    setIsOpen(!isOpen);
-  };
-  const toggleModal = () => setIsOpen(!isOpen);
 
   // Función para manejar el cambio en los campos del formulario
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,7 +76,7 @@ function Perfil() {
   };
 
   //valida la sesion
-  const { error, loading, tipoUsuario, res } = ValidateSession({
+  const { error, loading, tipoUsuario } = ValidateSession({
     route: "usuario",
     method: "GET",
     setEstado: setFormData,

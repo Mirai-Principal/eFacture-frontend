@@ -269,9 +269,9 @@ function PeriodoFiscal() {
                 </tr>
               </thead>
               <tbody>
-                {res.message ? (
+                {(res as any)?.message ? (
                   <tr>
-                    <td colSpan={2}>{res.message}</td>
+                    <td colSpan={2}>{(res as any).message}</td>
                   </tr>
                 ) : (
                   periodoFiscal.map((fila, index) => (

@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-import Navbar from "../components/Navbar";
 import Cargador from "../components/Cargador";
-import Footer from "../components/Footer";
-import BackgroundPage from "../components/BackgroundPage";
 import ValidateSession from "../components/ValidateSession";
 import Swal from "sweetalert2";
 import Config from "../components/Config";
@@ -181,12 +178,12 @@ function DetallesComprobante(props: Props) {
               </tr>
             </thead>
             <tbody>
-              {detalles.message ? (
+              {!Array.isArray(detalles) && (detalles as any).message ? (
                 <tr>
-                  <td colSpan={5}>{detalles.message}</td>
+                  <td colSpan={5}>{(detalles as any).message}</td>
                 </tr>
               ) : (
-                detalles.map((detalle) => (
+                Array.isArray(detalles) && detalles.map((detalle) => (
                   <tr key={detalle.cod_detalle} className="hover:bg-gray-50">
                     <td className="border px-4 py-2">
                       <small>{detalle.descripcion}</small>

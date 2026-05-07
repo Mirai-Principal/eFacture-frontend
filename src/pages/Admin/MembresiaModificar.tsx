@@ -25,7 +25,7 @@ const MembresiaModificar = () => {
   });
 
   // Función para manejar el cambio en los campos del formulario
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
@@ -34,7 +34,7 @@ const MembresiaModificar = () => {
   };
   const { cod_membresia } = useParams<{ cod_membresia: string }>();
 
-  const { error, res, loading, tipoUsuario } = ValidateSession({
+  const { error, loading, tipoUsuario } = ValidateSession({
     route: `visualizar_membresia/${cod_membresia}`,
     method: "GET",
     setEstado: setFormData,
@@ -66,8 +66,8 @@ const MembresiaModificar = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: token,
-          },
+            Authorization: token || undefined,
+          } as HeadersInit,
           body: JSON.stringify(formData),
         }
       );
@@ -154,9 +154,9 @@ const MembresiaModificar = () => {
                 </label>
                 <textarea
                   className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm"
-                  id="caracteristicas"
-                  name="caracteristicas"
-                  value={formData.caracteristicas}
+                  id="caracterisicas"
+                  name="caracterisicas"
+                  value={formData.caracterisicas}
                   onChange={handleChange}
                   rows={3}
                   required

@@ -60,20 +60,6 @@ function Configuracion() {
   const [sortAscending, setSortAscending] = useState(true);
 
   // para ordenar la tabla
-  const handleSortDates = () => {
-    const sortedData = [...configuracionRes].sort((a, b) => {
-      const dateA = new Date(a.updated_at.slice(0, 10));
-      const dateB = new Date(b.updated_at.slice(0, 10));
-      return sortAscending
-        ? dateA.getTime() - dateB.getTime()
-        : dateB.getTime() - dateA.getTime();
-    });
-
-    setSortAscending(!sortAscending);
-    setConfiguracionRes(sortedData);
-  };
-
-  // para ordenar la tabla
   const handleSortString = () => {
     const sortedData = [...configuracionRes].sort((a, b) => {
       const nameA = a.campo.toLowerCase();
@@ -355,9 +341,9 @@ function Configuracion() {
                   </tr>
                 </thead>
                 <tbody>
-                  {res.message ? (
+                  {(res as any)?.message ? (
                     <tr>
-                      <td colSpan={5}>{res.message}</td>
+                      <td colSpan={5}>{(res as any).message}</td>
                     </tr>
                   ) : (
                     configuracionRes.map((config, index) => (

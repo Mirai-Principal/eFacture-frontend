@@ -50,12 +50,10 @@ function CambiarPassword() {
           throw new Error(errorData.detail || "Something went wrong");
         }
 
-        const data = await response.json();
-
         // console.log("Datos recibidos:", data);
       } catch (error) {
         Swal.fire(`Link expirado`);
-        console.log(error.message);
+        console.log((error as Error).message);
 
         navigate("/");
       }
@@ -70,8 +68,6 @@ function CambiarPassword() {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const [error, setError] = useState<string | null>(null); // Para manejar errores
 
   // Función para manejar el cambio en los campos del formulario
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,8 +89,8 @@ function CambiarPassword() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: token,
-        },
+          Authorization: token || undefined,
+        } as HeadersInit,
         body: JSON.stringify(formData),
       });
 
@@ -102,7 +98,6 @@ function CambiarPassword() {
 
       // Verificar si la respuesta es exitosa
       if (!response.ok) {
-        setError(data.detail || "Error al registrar el usuario");
         Swal.fire(`${data.detail}`);
       } else {
         Dialog(data.detail || "Se cambiado tu contraseña");
@@ -113,7 +108,6 @@ function CambiarPassword() {
       }
     } catch (err) {
       //   console.error("Error:", err);
-      setError("Hubo un error al procesar la solicitud");
       Swal.fire(`${"Hubo un error al procesar la solicitud"}`);
     } finally {
       setIsSubmitting(false);
@@ -122,7 +116,7 @@ function CambiarPassword() {
 
   if (sesion) {
     //valida la sesion
-    const { error, loading, tipoUsuario, res } = ValidateSession({
+    const { error, loading, tipoUsuario } = ValidateSession({
       route: "validate_token",
       method: "POST",
     });
